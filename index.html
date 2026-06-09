@@ -822,6 +822,9 @@ async function loadFromSheets(webhook) {
   try {
     const res = await fetch(webhook + "?action=getExpenses", { mode: "cors" });
     const data = await res.json();
+    console.log("Sheets response keys:", Object.keys(data));
+    console.log("Budgets from Sheets:", JSON.stringify(data.budgets));
+    console.log("Row count:", data.rows ? data.rows.length : "none");
     if (data.rows && Array.isArray(data.rows)) {
       entries = data.rows.map(r => {
         // ── Date ──────────────────────────────────────────────────────
@@ -892,12 +895,17 @@ async function loadFromSheets(webhook) {
 
       // Process budgets from the same response
       if (data.budgets && Array.isArray(data.budgets)) {
+        console.log("Processing budgets:", data.budgets.length, "entries");
         data.budgets.forEach(b => {
           const key = b.type + "_" + b.monthKey;
+          console.log("Setting budget cache:", key, "=", b.budget);
           budgetCache[key] = b.budget;
           localStorage.setItem("exp_v3_budget_" + key, b.budget);
         });
+      } else {
+        console.log("No budgets array in response");
       }
+      console.log("Budget cache after load:", JSON.stringify(budgetCache));
       renderDashboard();
 
       if (pendingEntries.length > 0) await retryPending(true);
