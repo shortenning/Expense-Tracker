@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Expenses" />
+  <title>Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    :root {
+      --green: #3B6D11; --green-mid: #639922; --green-light: #EAF3DE; --green-border: #97C459;
+      --blue: #1A4A8A; --blue-mid: #2F6FCC; --blue-light: #E0ECFF; --blue-border: #7FB3F5;
+      --purple: #5B2D91; --purple-mid: #8B47D9; --purple-light: #F0E8FF; --purple-border: #C09AF0;
+      --bg: #F7F7F5; --surface: #FFFFFF; --surface2: #F1F0EB;
+      --text: #1A1A18; --text2: #6B6B67; --text3: #A8A8A4;
+      --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
+      --radius: 12px; --radius-sm: 8px;
+      --warn-bg: #FAEEDA; --warn-border: #EF9F27; --warn-text: #633806;
+      --danger-bg: #FCEBEB; --danger-border: #F09595; --danger-text: #A32D2D;
+      --font: 'DM Sans', system-ui, sans-serif; --mono: 'DM Mono', monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1A1A18; --surface: #242422; --surface2: #2E2E2C;
+        --text: #F0EFE8; --text2: #9A9A96; --text3: #6B6B67;
+        --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
+        --green-light: #1A2A0A; --green-border: #3B6D11;
+        --blue-light: #0A1A2A; --blue-border: #2F6FCC;
+        --purple-light: #1A0A2A; --purple-border: #5B2D91;
+        --warn-bg: #2A1E08; --warn-border: #854F0B; --warn-text: #FAC775;
+        --danger-bg: #2A0A0A; --danger-border: #A32D2D; --danger-text: #F7C1C1;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100%; padding-bottom: env(safe-area-inset-bottom, 20px); }
+    .app { max-width: 480px; margin: 0 auto; padding: 0 16px 100px; }
+
+    /* Header */
+    .header { display: flex; align-items: center; gap: 12px; padding: 20px 0 16px; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+    .header-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--green-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .header h1 { font-size: 18px; font-weight: 600; line-height: 1.2; }
+    .header p { font-size: 13px; color: var(--text2); margin-top: 1px; }
+
+    /* Tabs */
+    .tab-row { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 2px; }
+    .tab-row::-webkit-scrollbar { display: none; }
+    .tab { padding: 7px 15px; border: 0.5px solid var(--border); border-radius: 99px; font-size: 14px; font-family: var(--font); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+    .tab.active { background: var(--surface); color: var(--text); font-weight: 500; border-color: var(--border2); }
+
+    /* Card */
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 14px; }
+
+    /* Amount */
+    .amount-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+    .currency { font-size: 28px; font-weight: 500; color: var(--text2); line-height: 1; }
+    #amount { font-size: 36px; font-weight: 600; border: none; outline: none; background: transparent; color: var(--text); width: 100%; font-family: var(--font); -moz-appearance: textfield; }
+    #amount::-webkit-outer-spin-button, #amount::-webkit-inner-spin-button { -webkit-appearance: none; }
+    #amount::placeholder { color: var(--text3); }
+    .divider { height: 0.5px; background: var(--border); margin: 12px 0; }
+
+    /* Field */
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; }
+    .field input[type="text"] { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: var(--font); background: var(--surface2); color: var(--text); transition: border-color 0.15s; }
+    .field input[type="text"]:focus { outline: none; border-color: var(--border2); }
+
+    /* Person selector */
+    .person-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .person-btn {
+      padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 14px; font-family: var(--font); background: var(--surface2); color: var(--text2);
+      cursor: pointer; text-align: center; transition: all 0.15s; font-weight: 500;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .person-btn:active { transform: scale(0.97); }
+    .person-btn.selected-caleb { background: var(--blue-light); border-color: var(--blue-border); color: var(--blue); }
+    .person-btn.selected-tammy { background: var(--purple-light); border-color: var(--purple-border); color: var(--purple); }
+
+    /* Category grid */
+    .cat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .cat-btn { padding: 9px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: var(--font); background: var(--surface2); color: var(--text2); cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 7px; white-space: nowrap; overflow: hidden; }
+    .cat-btn i { font-size: 15px; flex-shrink: 0; }
+    .cat-btn span { overflow: hidden; text-overflow: ellipsis; }
+    .cat-btn:active { transform: scale(0.97); }
+    .cat-btn.selected { background: var(--green-light); border-color: var(--green-border); color: var(--green); font-weight: 500; }
+
+    /* Submit */
+    .submit-btn { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--green-mid); color: white; font-size: 16px; font-weight: 600; font-family: var(--font); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s, transform 0.1s; margin-bottom: 14px; }
+    .submit-btn:active { transform: scale(0.98); opacity: 0.9; }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Toast */
+    .toast { display: none; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 14px; border: 0.5px solid; }
+    .toast.show { display: flex; }
+    .toast.success { background: var(--green-light); border-color: var(--green-border); color: var(--green); }
+    .toast.warning { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+    .toast.danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-text); }
+
+    /* Dashboard */
+    .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 16px; }
+    .month-label { font-size: 15px; font-weight: 600; color: var(--text); }
+    .month-arrow { background: none; border: none; cursor: pointer; color: var(--text2); padding: 4px 8px; border-radius: var(--radius-sm); font-size: 18px; display: flex; align-items: center; transition: background 0.15s; }
+    .month-arrow:hover { background: var(--surface2); }
+
+    .remaining-block { border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px; text-align: center; }
+    .remaining-block.ok  { background: var(--green-light); }
+    .remaining-block.warn { background: var(--warn-bg); }
+    .remaining-block.over { background: var(--danger-bg); }
+    .remaining-block.none { background: var(--surface2); }
+    .remaining-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .remaining-block.ok   .remaining-label { color: var(--green); }
+    .remaining-block.warn .remaining-label { color: var(--warn-text); }
+    .remaining-block.over .remaining-label { color: var(--danger-text); }
+    .remaining-block.none .remaining-label { color: var(--text3); }
+    .remaining-amount { font-size: 28px; font-weight: 700; line-height: 1; }
+    .remaining-block.ok   .remaining-amount { color: var(--green); }
+    .remaining-block.warn .remaining-amount { color: var(--warn-text); }
+    .remaining-block.over .remaining-amount { color: var(--danger-text); }
+    .remaining-block.none .remaining-amount { color: var(--text3); }
+
+    .over-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: var(--danger-bg); color: var(--danger-text); border: 0.5px solid var(--danger-border); text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .person-card {
+      background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 14px;
+    }
+    .person-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .person-label { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
+    .person-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+    .avatar-caleb { background: var(--blue-mid); }
+    .avatar-tammy { background: var(--purple-mid); }
+
+    .budget-bar-wrap { margin-bottom: 10px; }
+    .budget-bar-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin: 6px 0; }
+    .budget-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+    .bar-caleb { background: var(--blue-mid); }
+    .bar-tammy { background: var(--purple-mid); }
+    .bar-over { background: var(--danger-border); }
+    .budget-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); }
+
+    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-box { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px 14px; }
+    .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; font-weight: 600; }
+    .stat-val { font-size: 20px; font-weight: 600; }
+    .stat-val.over { color: var(--danger-text); }
+
+    .budget-edit-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
+    .budget-edit-row label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+    .budget-input { flex: 1; padding: 7px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font); background: var(--surface2); color: var(--text); }
+    .budget-input:focus { outline: none; border-color: var(--border2); }
+    .budget-save-btn { padding: 7px 14px; border: none; border-radius: var(--radius-sm); background: var(--green-mid); color: white; font-size: 13px; font-weight: 600; font-family: var(--font); cursor: pointer; white-space: nowrap; }
+
+    /* Recent entries */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .section-header h2 { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+    .total-badge { font-size: 15px; font-weight: 600; color: var(--green); }
+    .entry { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 0; border-bottom: 0.5px solid var(--border); }
+    .entry:last-child { border-bottom: none; }
+    .entry-left { display: flex; flex-direction: column; gap: 2px; }
+    .entry-cat { font-size: 14px; font-weight: 500; }
+    .entry-meta { font-size: 13px; color: var(--text2); }
+    .entry-time { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .entry-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .entry-amount { font-size: 15px; font-weight: 600; }
+    .entry-person-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
+    .badge-caleb { background: var(--blue-light); color: var(--blue); }
+    .badge-tammy { background: var(--purple-light); color: var(--purple); }
+    .empty { font-size: 14px; color: var(--text3); text-align: center; padding: 20px 0; }
+
+    /* Setup */
+    .setup-section { margin-bottom: 14px; }
+    .setup-card { background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
+    .setup-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .setup-card ol { padding-left: 18px; }
+    .setup-card li { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 2px; }
+    .setup-card li strong { color: var(--text); font-weight: 500; }
+    .code-block { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-family: var(--mono); font-size: 12px; color: var(--text2); word-break: break-all; line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
+    .copy-btn { margin-top: 10px; padding: 7px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--surface); color: var(--text2); font-family: var(--font); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+    .copy-btn:hover { background: var(--surface2); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); display: inline-block; margin-right: 6px; }
+    .status-dot.connected { background: var(--green-mid); }
+    .pending-section { margin-top: 10px; }
+    .pending-count { font-size: 13px; color: var(--warn-text); background: var(--warn-bg); border: 0.5px solid var(--warn-border); padding: 8px 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; }
+    .retry-btn { margin-left: auto; font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--warn-border); border-radius: var(--radius-sm); background: transparent; color: var(--warn-text); font-family: var(--font); cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-icon">
+      <i class="ti ti-wallet" style="font-size:20px; color:var(--green);" aria-hidden="true"></i>
+    </div>
+    <div>
+      <h1>Expense Tracker</h1>
+      <p id="current-date">Loading…</p>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('log')">Log</button>
+    <button class="tab" onclick="showTab('dashboard')">Dashboard</button>
+    <button class="tab" onclick="showTab('recent')">Recent</button>
+    <button class="tab" onclick="showTab('setup')">Setup</button>
+  </div>
+
+  <!-- LOG TAB -->
+  <div id="tab-log">
+    <div id="toast" class="toast success" role="alert" aria-live="polite">
+      <i class="ti ti-check" style="font-size:16px; flex-shrink:0;" aria-hidden="true"></i>
+      <span id="toast-msg"></span>
+    </div>
+
+    <div class="card">
+      <div class="amount-row">
+        <span class="currency">$</span>
+        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" inputmode="decimal" aria-label="Expense amount" />
+      </div>
+      <div class="divider"></div>
+
+      <div class="field" style="margin-bottom:14px;">
+        <label>Person</label>
+        <div class="person-row" id="person-row" role="group" aria-label="Select person">
+          <button class="person-btn" id="btn-caleb" onclick="selectPerson('Caleb')" aria-pressed="false">
+            <i class="ti ti-user" aria-hidden="true"></i> Caleb
+          </button>
+          <button class="person-btn" id="btn-tammy" onclick="selectPerson('Tammy')" aria-pressed="false">
+            <i class="ti ti-user" aria-hidden="true"></i> Tammy
+          </button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:16px;">
+        <label>Category</label>
+        <div class="cat-grid" id="cat-grid" role="group" aria-label="Expense category"></div>
+      </div>
+
+      <div class="field">
+        <label>Item description</label>
+        <input type="text" id="item" placeholder="e.g. Kopi at Ya Kun, Grab to Orchard…" aria-label="Item description" />
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitExpense()">
+      <i class="ti ti-plus" style="font-size:18px;" aria-hidden="true"></i>
+      Log expense
+    </button>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard" style="display:none;">
+
+    <!-- Month header -->
+    <div class="month-nav">
+      <button class="month-arrow" onclick="shiftMonth(-1)" aria-label="Previous month">
+        <i class="ti ti-chevron-left" aria-hidden="true"></i>
+      </button>
+      <span class="month-label" id="dash-month-label">June 2026</span>
+      <button class="month-arrow" onclick="shiftMonth(1)" aria-label="Next month">
+        <i class="ti ti-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Caleb card -->
+    <div class="person-card">
+      <div class="person-card-header">
+        <div class="person-label">
+          <div class="person-avatar avatar-caleb">C</div>
+          Caleb
+        </div>
+        <span class="over-badge" id="caleb-over-badge" style="display:none;">Over budget</span>
+      </div>
+
+      <!-- Big remaining -->
+      <div class="remaining-block" id="caleb-remaining-block">
+        <div class="remaining-label" id="caleb-remaining-label">Remaining</div>
+        <div class="remaining-amount" id="caleb-remaining-amount">—</div>
+      </div>
+
+      <div class="stat-row" style="margin-bottom:12px;">
+        <div class="stat-box">
+          <div class="stat-label">Spent</div>
+          <div class="stat-val" id="caleb-spent">$0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Monthly budget</div>
+          <div class="stat-val" id="caleb-budget-val">—</div>
+        </div>
+      </div>
+      <div class="budget-bar-wrap">
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill bar-caleb" id="caleb-bar" style="width:0%"></div>
+        </div>
+        <div class="budget-labels">
+          <span id="caleb-bar-pct">—</span>
+          <span id="caleb-bar-label">of monthly budget</span>
+        </div>
+      </div>
+      <div class="budget-edit-row">
+        <label for="caleb-budget-input">Set monthly budget $</label>
+        <input class="budget-input" id="caleb-budget-input" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" />
+        <button class="budget-save-btn" onclick="saveBudget('Caleb')">Save</button>
+      </div>
+    </div>
+
+    <!-- Tammy card -->
+    <div class="person-card">
+      <div class="person-card-header">
+        <div class="person-label">
+          <div class="person-avatar avatar-tammy">T</div>
+          Tammy
+        </div>
+        <span class="over-badge" id="tammy-over-badge" style="display:none;">Over budget</span>
+      </div>
+
+      <!-- Big remaining -->
+      <div class="remaining-block" id="tammy-remaining-block">
+        <div class="remaining-label" id="tammy-remaining-label">Remaining</div>
+        <div class="remaining-amount" id="tammy-remaining-amount">—</div>
+      </div>
+
+      <div class="stat-row" style="margin-bottom:12px;">
+        <div class="stat-box">
+          <div class="stat-label">Spent</div>
+          <div class="stat-val" id="tammy-spent">$0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Monthly budget</div>
+          <div class="stat-val" id="tammy-budget-val">—</div>
+        </div>
+      </div>
+      <div class="budget-bar-wrap">
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill bar-tammy" id="tammy-bar" style="width:0%"></div>
+        </div>
+        <div class="budget-labels">
+          <span id="tammy-bar-pct">—</span>
+          <span id="tammy-bar-label">of monthly budget</span>
+        </div>
+      </div>
+      <div class="budget-edit-row">
+        <label for="tammy-budget-input">Set monthly budget $</label>
+        <input class="budget-input" id="tammy-budget-input" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" />
+        <button class="budget-save-btn" onclick="saveBudget('Tammy')">Save</button>
+      </div>
+    </div>
+
+    <!-- Combined total -->
+    <div class="card">
+      <div class="section-header" style="margin-bottom:0;">
+        <h2>Combined this month</h2>
+        <span class="total-badge" id="combined-total">$0.00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT TAB -->
+  <div id="tab-recent" style="display:none;">
+    <div class="card">
+      <div class="section-header">
+        <h2>Today</h2>
+        <span class="total-badge" id="today-total">$0.00</span>
+      </div>
+      <div id="entries-today"><p class="empty">No entries yet today.</p></div>
+    </div>
+    <div class="card">
+      <div class="section-header">
+        <h2>Earlier</h2>
+        <span class="total-badge" id="earlier-total"></span>
+      </div>
+      <div id="entries-earlier"><p class="empty">No earlier entries.</p></div>
+    </div>
+  </div>
+
+  <!-- SETUP TAB -->
+  <div id="tab-setup" style="display:none;">
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span class="status-dot" id="conn-dot"></span>
+        <span style="font-size:14px; font-weight:500;" id="conn-label">Not connected</span>
+      </div>
+      <div class="field">
+        <label>Google Apps Script web app URL</label>
+        <input type="text" id="webhook-url" placeholder="https://script.google.com/macros/s/…/exec" oninput="saveWebhook()" aria-label="Apps Script URL" />
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px;">Paste your deployed URL here. Saved in your browser.</p>
+      <div class="pending-section" id="pending-section" style="display:none;">
+        <div class="pending-count">
+          <i class="ti ti-clock" style="font-size:15px;" aria-hidden="true"></i>
+          <span id="pending-msg"></span>
+          <button class="retry-btn" onclick="retryPending()">Retry</button>
+        </div>
+      </div>
+    </div>
+    <div class="setup-card setup-section">
+      <h3><i class="ti ti-list-numbers" style="font-size:16px;" aria-hidden="true"></i>Setup steps</h3>
+      <ol>
+        <li>Create a new Google Sheet</li>
+        <li>Click <strong>Extensions → Apps Script</strong></li>
+        <li>Delete existing code, paste the script below</li>
+        <li>Click <strong>Deploy → New deployment</strong></li>
+        <li>Type: <strong>Web app</strong> — set access to <strong>Anyone</strong></li>
+        <li>Click <strong>Deploy</strong> and copy the URL</li>
+        <li>Paste the URL into the field above</li>
+      </ol>
+    </div>
+    <div class="setup-card setup-section">
+      <h3><i class="ti ti-code" style="font-size:16px;" aria-hidden="true"></i>Apps Script code</h3>
+      <div class="code-block" id="script-display"></div>
+      <button class="copy-btn" onclick="copyScript(this)">
+        <i class="ti ti-copy" style="font-size:14px;" aria-hidden="true"></i>
+        Copy script
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT = `function doPost(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Expenses") || ss.insertSheet("Expenses");
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Date", "Time", "Person", "Category", "Item", "Amount"]);
+  }
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([data.date, data.time, data.person, data.category, data.item, parseFloat(data.amount)]);
+  var output = ContentService.createTextOutput(JSON.stringify({ status: "ok" }));
+  output.setMimeType(ContentService.MimeType.JSON);
+  return output;
+}
+
+function doGet() {
+  return ContentService.createTextOutput("Expense Tracker connected.");
+}`;
+
+const CATEGORIES = [
+  { name: "Breakfast",     icon: "ti-coffee" },
+  { name: "Lunch",         icon: "ti-salad" },
+  { name: "Dinner",        icon: "ti-tools-kitchen-2" },
+  { name: "Grocery",       icon: "ti-shopping-cart" },
+  { name: "Transport",     icon: "ti-bus" },
+  { name: "Coffee",        icon: "ti-cup" },
+  { name: "Entertainment", icon: "ti-device-tv" },
+  { name: "Shopping",      icon: "ti-shopping-bag" },
+  { name: "Household",     icon: "ti-home" },
+  { name: "Parking",       icon: "ti-parking" },
+  { name: "Car Charging",  icon: "ti-charging-pile" },
+  { name: "Healthcare",    icon: "ti-heart-rate-monitor" },
+  { name: "Bills",         icon: "ti-receipt" },
+  { name: "Other",         icon: "ti-dots-circle-horizontal" }
+];
+
+let selectedCat = "";
+let selectedPerson = "";
+let entries = [];
+let pendingEntries = [];
+let dashYear = new Date().getFullYear();
+let dashMonth = new Date().getMonth(); // 0-indexed
+
+/* ── Storage ─────────────────────────────────── */
+function loadStorage() {
+  try { entries = JSON.parse(localStorage.getItem("exp_v3_entries") || "[]"); } catch(e) { entries = []; }
+  try { pendingEntries = JSON.parse(localStorage.getItem("exp_v3_pending") || "[]"); } catch(e) { pendingEntries = []; }
+}
+function saveEntries() { localStorage.setItem("exp_v3_entries", JSON.stringify(entries.slice(0, 500))); }
+function savePending() { localStorage.setItem("exp_v3_pending", JSON.stringify(pendingEntries)); }
+
+function monthKey(year, month) { return year + "-" + String(month + 1).padStart(2, "0"); }
+function getBudget(person, year, month) {
+  return parseFloat(localStorage.getItem("exp_v3_budget_" + person + "_" + monthKey(year, month)) || "0");
+}
+function setBudgetStore(person, year, month, val) {
+  localStorage.setItem("exp_v3_budget_" + person + "_" + monthKey(year, month), val);
+}
+
+/* ── Init ────────────────────────────────────── */
+function init() {
+  loadStorage();
+  const now = new Date();
+  document.getElementById("current-date").textContent = now.toLocaleDateString("en-SG", {
+    weekday: "short", day: "numeric", month: "short", year: "numeric"
+  });
+  const grid = document.getElementById("cat-grid");
+  CATEGORIES.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "cat-btn";
+    btn.setAttribute("aria-pressed", "false");
+    btn.innerHTML = `<i class="ti ${c.icon}" aria-hidden="true"></i><span>${c.name}</span>`;
+    btn.onclick = () => selectCat(c.name, btn);
+    grid.appendChild(btn);
+  });
+  document.getElementById("script-display").textContent = APPS_SCRIPT;
+  const saved = localStorage.getItem("exp_v3_webhook");
+  if (saved) { document.getElementById("webhook-url").value = saved; updateConnStatus(true); }
+  else { updateConnStatus(false); }
+
+  // pre-fill budget inputs with current month's budget
+  ["Caleb","Tammy"].forEach(p => {
+    const b = getBudget(p, dashYear, dashMonth);
+    if (b) document.getElementById(p.toLowerCase() + "-budget-input").value = b;
+  });
+  updatePendingUI();
+
+  const style = document.createElement("style");
+  style.textContent = "@keyframes spin { to { transform: rotate(360deg); } }";
+  document.head.appendChild(style);
+}
+
+/* ── Person & Category selectors ─────────────── */
+function selectPerson(name) {
+  selectedPerson = name;
+  ["Caleb","Tammy"].forEach(p => {
+    const btn = document.getElementById("btn-" + p.toLowerCase());
+    btn.className = "person-btn";
+    btn.setAttribute("aria-pressed", "false");
+  });
+  const sel = document.getElementById("btn-" + name.toLowerCase());
+  sel.className = "person-btn selected-" + name.toLowerCase();
+  sel.setAttribute("aria-pressed", "true");
+}
+
+function selectCat(name, btn) {
+  selectedCat = name;
+  document.querySelectorAll(".cat-btn").forEach(b => { b.classList.remove("selected"); b.setAttribute("aria-pressed","false"); });
+  btn.classList.add("selected");
+  btn.setAttribute("aria-pressed", "true");
+}
+
+/* ── Tab switcher ────────────────────────────── */
+function showTab(t) {
+  ["log","dashboard","recent","setup"].forEach(id => {
+    document.getElementById("tab-"+id).style.display = id === t ? "block" : "none";
+  });
+  document.querySelectorAll(".tab").forEach((btn, i) => {
+    btn.classList.toggle("active", ["log","dashboard","recent","setup"][i] === t);
+  });
+  if (t === "recent") renderRecent();
+  if (t === "dashboard") renderDashboard();
+}
+
+/* ── Submit ──────────────────────────────────── */
+async function submitExpense() {
+  const amount = parseFloat(document.getElementById("amount").value);
+  const item   = document.getElementById("item").value.trim();
+  if (!amount || amount <= 0) { showToast("Please enter a valid amount.", "danger"); return; }
+  if (!selectedPerson)        { showToast("Please select a person.", "danger"); return; }
+  if (!selectedCat)           { showToast("Please select a category.", "danger"); return; }
+
+  const now = new Date();
+  const entry = {
+    date:     now.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" }),
+    time:     now.toLocaleTimeString("en-SG",  { hour:"2-digit", minute:"2-digit" }),
+    person:   selectedPerson,
+    category: selectedCat,
+    item:     item || "-",
+    amount:   amount.toFixed(2),
+    ts:       now.toISOString()
+  };
+
+  entries.unshift(entry);
+  saveEntries();
+
+  const webhook = localStorage.getItem("exp_v3_webhook");
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="font-size:18px;animation:spin 1s linear infinite;" aria-hidden="true"></i> Saving…';
+
+  if (webhook) {
+    const ok = await sendToSheets(entry, webhook);
+    if (ok) { showToast("Logged & saved to Google Sheets ✓", "success"); }
+    else {
+      pendingEntries.push(entry); savePending();
+      showToast("Saved locally — will sync to Sheets when online.", "warning");
+      updatePendingUI();
+    }
+  } else {
+    showToast("Saved locally. Add your Sheets URL in Setup to sync.", "warning");
+  }
+
+  document.getElementById("amount").value = "";
+  document.getElementById("item").value   = "";
+  selectedCat = ""; selectedPerson = "";
+  document.querySelectorAll(".cat-btn").forEach(b => { b.classList.remove("selected"); b.setAttribute("aria-pressed","false"); });
+  ["Caleb","Tammy"].forEach(p => { document.getElementById("btn-"+p.toLowerCase()).className = "person-btn"; });
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-plus" style="font-size:18px;" aria-hidden="true"></i> Log expense';
+}
+
+/* ── Sheets sync ─────────────────────────────── */
+async function sendToSheets(entry, webhook) {
+  try {
+    await fetch(webhook, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(entry), mode:"no-cors" });
+    return true;
+  } catch(e) { return false; }
+}
+
+async function retryPending() {
+  const webhook = localStorage.getItem("exp_v3_webhook");
+  if (!webhook || !pendingEntries.length) return;
+  document.querySelector(".retry-btn").textContent = "Syncing…";
+  let synced = 0; const remaining = [];
+  for (const e of pendingEntries) { if (await sendToSheets(e, webhook)) synced++; else remaining.push(e); }
+  pendingEntries = remaining; savePending(); updatePendingUI();
+  if (synced > 0) showToast(`Synced ${synced} entr${synced>1?"ies":"y"} to Sheets ✓`, "success");
+  else showToast("Sync failed — check your URL in Setup.", "danger");
+}
+
+/* ── Dashboard ───────────────────────────────── */
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function shiftMonth(delta) {
+  dashMonth += delta;
+  if (dashMonth > 11) { dashMonth = 0; dashYear++; }
+  if (dashMonth < 0)  { dashMonth = 11; dashYear--; }
+  renderDashboard();
+}
+
+function renderDashboard() {
+  // Update month label
+  document.getElementById("dash-month-label").textContent = MONTH_NAMES[dashMonth] + " " + dashYear;
+
+  // Filter entries to the displayed month
+  const monthEntries = entries.filter(e => {
+    const d = new Date(e.ts);
+    return d.getMonth() === dashMonth && d.getFullYear() === dashYear;
+  });
+
+  ["Caleb","Tammy"].forEach(person => {
+    const pEntries = monthEntries.filter(e => e.person === person);
+    const spent = pEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
+    const budget = getBudget(person, dashYear, dashMonth);
+    const pid = person.toLowerCase();
+
+    document.getElementById(pid + "-spent").textContent = "$" + spent.toFixed(2);
+
+    // Pre-fill budget input for the viewed month
+    const budgetInput = document.getElementById(pid + "-budget-input");
+    budgetInput.value = budget > 0 ? budget : "";
+
+    const overBadge = document.getElementById(pid + "-over-badge");
+    const remBlock  = document.getElementById(pid + "-remaining-block");
+    const remLabel  = document.getElementById(pid + "-remaining-label");
+    const remAmt    = document.getElementById(pid + "-remaining-amount");
+
+    if (budget > 0) {
+      document.getElementById(pid + "-budget-val").textContent = "$" + budget.toFixed(2);
+      const remaining = budget - spent;
+      const pct = Math.min((spent / budget) * 100, 100);
+      const over = spent > budget;
+      const warn = !over && pct >= 80;
+
+      // Bar
+      const bar = document.getElementById(pid + "-bar");
+      bar.style.width = pct + "%";
+      bar.className = "budget-bar-fill " + (over ? "bar-over" : "bar-" + pid);
+      document.getElementById(pid + "-bar-pct").textContent = Math.round((spent / budget) * 100) + "%";
+      document.getElementById(pid + "-bar-label").textContent = "of monthly budget";
+
+      // Over badge
+      overBadge.style.display = over ? "inline-block" : "none";
+
+      // Remaining block
+      remBlock.className = "remaining-block " + (over ? "over" : warn ? "warn" : "ok");
+      remLabel.textContent = over ? "Over budget by" : "Remaining";
+      remAmt.textContent = "$" + Math.abs(remaining).toFixed(2);
+
+    } else {
+      document.getElementById(pid + "-budget-val").textContent = "—";
+      document.getElementById(pid + "-bar").style.width = "0%";
+      document.getElementById(pid + "-bar-pct").textContent = "—";
+      document.getElementById(pid + "-bar-label").textContent = "set a budget below";
+      overBadge.style.display = "none";
+      remBlock.className = "remaining-block none";
+      remLabel.textContent = "Remaining";
+      remAmt.textContent = "—";
+    }
+  });
+
+  const combined = monthEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
+  document.getElementById("combined-total").textContent = "$" + combined.toFixed(2);
+}
+
+function saveBudget(person) {
+  const val = parseFloat(document.getElementById(person.toLowerCase() + "-budget-input").value);
+  if (!val || val <= 0) { showToast("Please enter a valid budget amount.", "danger"); return; }
+  setBudgetStore(person, dashYear, dashMonth, val);
+  renderDashboard();
+  const mk = MONTH_NAMES[dashMonth] + " " + dashYear;
+  showToast(person + "'s budget for " + mk + " set to $" + val.toFixed(2) + " ✓", "success");
+}
+
+/* ── Recent ──────────────────────────────────── */
+function renderRecent() {
+  const todayStr = new Date().toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
+  const todayEntries   = entries.filter(e => e.date === todayStr);
+  const earlierEntries = entries.filter(e => e.date !== todayStr);
+  const todayTotal = todayEntries.reduce((s,e) => s + parseFloat(e.amount), 0);
+  document.getElementById("today-total").textContent = "$" + todayTotal.toFixed(2);
+  document.getElementById("entries-today").innerHTML = todayEntries.length
+    ? todayEntries.map(entryHTML).join("") : '<p class="empty">No entries yet today.</p>';
+  const earlierTotal = earlierEntries.reduce((s,e) => s + parseFloat(e.amount), 0);
+  document.getElementById("earlier-total").textContent = earlierEntries.length ? "$" + earlierTotal.toFixed(2) : "";
+  document.getElementById("entries-earlier").innerHTML = earlierEntries.length
+    ? earlierEntries.map(entryHTML).join("") : '<p class="empty">No earlier entries.</p>';
+}
+
+function entryHTML(e) {
+  const badgeClass = e.person === "Caleb" ? "badge-caleb" : "badge-tammy";
+  return `<div class="entry">
+    <div class="entry-left">
+      <span class="entry-cat">${e.category}</span>
+      <span class="entry-meta">${e.item}</span>
+      <span class="entry-time">${e.date} · ${e.time}</span>
+    </div>
+    <div class="entry-right">
+      <span class="entry-amount">$${parseFloat(e.amount).toFixed(2)}</span>
+      <span class="entry-person-badge ${badgeClass}">${e.person || ""}</span>
+    </div>
+  </div>`;
+}
+
+/* ── Toast ───────────────────────────────────── */
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.className = `toast ${type} show`;
+  document.getElementById("toast-msg").textContent = msg;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove("show"), 4000);
+}
+
+/* ── Setup helpers ───────────────────────────── */
+function updatePendingUI() {
+  const sec = document.getElementById("pending-section");
+  const msg = document.getElementById("pending-msg");
+  if (pendingEntries.length > 0) {
+    sec.style.display = "block";
+    msg.textContent = `${pendingEntries.length} entr${pendingEntries.length>1?"ies":"y"} pending sync`;
+  } else { sec.style.display = "none"; }
+}
+
+function saveWebhook() {
+  const v = document.getElementById("webhook-url").value.trim();
+  if (v) { localStorage.setItem("exp_v3_webhook", v); updateConnStatus(true); }
+  else   { localStorage.removeItem("exp_v3_webhook"); updateConnStatus(false); }
+}
+
+function updateConnStatus(connected) {
+  document.getElementById("conn-dot").className  = "status-dot" + (connected ? " connected" : "");
+  document.getElementById("conn-label").textContent = connected ? "Connected to Google Sheets" : "Not connected";
+}
+
+function copyScript(btn) {
+  navigator.clipboard.writeText(APPS_SCRIPT).then(() => {
+    btn.innerHTML = '<i class="ti ti-check" style="font-size:14px;" aria-hidden="true"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy" style="font-size:14px;" aria-hidden="true"></i> Copy script'; }, 2500);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
