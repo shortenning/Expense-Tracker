@@ -512,13 +512,21 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
   var data = sheet.getDataRange().getValues();
-  var headers = data[0];
   var rows = [];
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
+    // Format date and time explicitly as strings to avoid Sheets returning Date objects
+    var dateVal = row[0];
+    var timeVal = row[1];
+    var dateStr = (dateVal instanceof Date)
+      ? Utilities.formatDate(dateVal, Session.getScriptTimeZone(), "dd/MM/yyyy")
+      : String(dateVal);
+    var timeStr = (timeVal instanceof Date)
+      ? Utilities.formatDate(timeVal, Session.getScriptTimeZone(), "HH:mm")
+      : String(timeVal);
     rows.push({
-      date:     row[0],
-      time:     row[1],
+      date:     dateStr,
+      time:     timeStr,
       person:   row[2],
       category: row[3],
       item:     row[4],
@@ -711,16 +719,49 @@ async function loadFromSheets(webhook) {
     const res = await fetch(webhook + "?action=get", { mode: "cors" });
     const data = await res.json();
     if (data.rows && Array.isArray(data.rows)) {
-      // Normalise rows — Sheets may return numbers for amount
-      entries = data.rows.map(r => ({
-        date:     String(r.date || ""),
-        time:     String(r.time || ""),
-        person:   String(r.person || ""),
-        category: String(r.category || ""),
-        item:     String(r.item || ""),
-        amount:   String(parseFloat(r.amount) || 0),
-        ts:       r.ts || new Date().toISOString()
-      })).filter(r => r.date);
+      // Normalise rows — Sheets returns Date objects as ISO strings for date/time cols
+      entries = data.rows.map(r => {
+        // Parse date field — may be ISO string (from Sheets Date cell) or already formatted
+        let dateStr = String(r.date || "");
+        let timeStr = String(r.time || "");
+
+        // If date looks like an ISO string (contains "T"), reformat it
+        if (dateStr.includes("T")) {
+          const d = new Date(dateStr);
+          if (!isNaN(d)) {
+            dateStr = d.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
+          }
+        }
+        // If time looks like an ISO string, reformat it
+        if (timeStr.includes("T") || timeStr.includes("Z")) {
+          const d = new Date(timeStr);
+          if (!isNaN(d)) {
+            timeStr = d.toLocaleTimeString("en-SG", { hour:"2-digit", minute:"2-digit" });
+          }
+        }
+
+        // Derive a reliable ts for month filtering
+        let ts = r.ts || "";
+        if (!ts || ts === "undefined") {
+          // Reconstruct ts from date string (dd/mm/yyyy) if possible
+          const parts = dateStr.split("/");
+          if (parts.length === 3) {
+            ts = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${timeStr || "00:00"}:00`).toISOString();
+          } else {
+            ts = new Date().toISOString();
+          }
+        }
+
+        return {
+          date:     dateStr,
+          time:     timeStr,
+          person:   String(r.person || ""),
+          category: String(r.category || ""),
+          item:     String(r.item || ""),
+          amount:   String(parseFloat(r.amount) || 0),
+          ts:       ts
+        };
+      }).filter(r => r.date);
       saveEntries();
       // Retry any pending entries now that we're online
       if (pendingEntries.length > 0) await retryPending(true);
