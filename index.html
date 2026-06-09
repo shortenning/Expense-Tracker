@@ -14,195 +14,166 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <style>
     :root {
-      --green: #3B6D11; --green-mid: #639922; --green-light: #EAF3DE; --green-border: #97C459;
-      --blue: #1A4A8A; --blue-mid: #2F6FCC; --blue-light: #E0ECFF; --blue-border: #7FB3F5;
-      --purple: #5B2D91; --purple-mid: #8B47D9; --purple-light: #F0E8FF; --purple-border: #C09AF0;
-      --teal: #0E5A5A; --teal-mid: #1A8C8C; --teal-light: #E0F5F5; --teal-border: #5ECECE;
-      --bg: #F7F7F5; --surface: #FFFFFF; --surface2: #F1F0EB;
-      --text: #1A1A18; --text2: #6B6B67; --text3: #A8A8A4;
-      --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
-      --radius: 12px; --radius-sm: 8px;
-      --warn-bg: #FAEEDA; --warn-border: #EF9F27; --warn-text: #633806;
-      --danger-bg: #FCEBEB; --danger-border: #F09595; --danger-text: #A32D2D;
-      --font: 'DM Sans', system-ui, sans-serif; --mono: 'DM Mono', monospace;
+      --green:#3B6D11;--green-mid:#639922;--green-light:#EAF3DE;--green-border:#97C459;
+      --blue:#1A4A8A;--blue-mid:#2F6FCC;--blue-light:#E0ECFF;--blue-border:#7FB3F5;
+      --purple:#5B2D91;--purple-mid:#8B47D9;--purple-light:#F0E8FF;--purple-border:#C09AF0;
+      --teal:#0E5A5A;--teal-mid:#1A8C8C;--teal-light:#E0F5F5;--teal-border:#5ECECE;
+      --bg:#F7F7F5;--surface:#FFFFFF;--surface2:#F1F0EB;
+      --text:#1A1A18;--text2:#6B6B67;--text3:#A8A8A4;
+      --border:rgba(0,0,0,0.10);--border2:rgba(0,0,0,0.18);
+      --radius:12px;--radius-sm:8px;
+      --warn-bg:#FAEEDA;--warn-border:#EF9F27;--warn-text:#633806;
+      --danger-bg:#FCEBEB;--danger-border:#F09595;--danger-text:#A32D2D;
+      --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1A1A18; --surface: #242422; --surface2: #2E2E2C;
-        --text: #F0EFE8; --text2: #9A9A96; --text3: #6B6B67;
-        --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
-        --green-light: #1A2A0A; --green-border: #3B6D11;
-        --blue-light: #0A1A2A; --blue-border: #2F6FCC;
-        --purple-light: #1A0A2A; --purple-border: #5B2D91;
-        --teal-light: #0A2020; --teal-border: #1A8C8C;
-        --warn-bg: #2A1E08; --warn-border: #854F0B; --warn-text: #FAC775;
-        --danger-bg: #2A0A0A; --danger-border: #A32D2D; --danger-text: #F7C1C1;
+    @media(prefers-color-scheme:dark){
+      :root{
+        --bg:#1A1A18;--surface:#242422;--surface2:#2E2E2C;
+        --text:#F0EFE8;--text2:#9A9A96;--text3:#6B6B67;
+        --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
+        --green-light:#1A2A0A;--green-border:#3B6D11;
+        --blue-light:#0A1A2A;--blue-border:#2F6FCC;
+        --purple-light:#1A0A2A;--purple-border:#5B2D91;
+        --teal-light:#0A2020;--teal-border:#1A8C8C;
+        --warn-bg:#2A1E08;--warn-border:#854F0B;--warn-text:#FAC775;
+        --danger-bg:#2A0A0A;--danger-border:#A32D2D;--danger-text:#F7C1C1;
       }
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { height: 100%; }
-    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100%; padding-bottom: env(safe-area-inset-bottom, 20px); }
-    .app { max-width: 480px; margin: 0 auto; padding: 0 16px 100px; }
-
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{height:100%;}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100%;padding-bottom:env(safe-area-inset-bottom,20px);}
+    .app{max-width:480px;margin:0 auto;padding:0 16px 100px;}
     /* Header */
-    .header { display: flex; align-items: center; gap: 12px; padding: 20px 0 16px; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
-    .header-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--green-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .header h1 { font-size: 18px; font-weight: 600; line-height: 1.2; }
-    .header p { font-size: 13px; color: var(--text2); margin-top: 1px; }
-
+    .header{display:flex;align-items:center;gap:12px;padding:20px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:20px;}
+    .header-icon{width:40px;height:40px;border-radius:var(--radius-sm);background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .header h1{font-size:18px;font-weight:600;line-height:1.2;}
+    .header p{font-size:13px;color:var(--text2);margin-top:1px;}
     /* Tabs */
-    .tab-row { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 2px; }
-    .tab-row::-webkit-scrollbar { display: none; }
-    .tab { padding: 7px 15px; border: 0.5px solid var(--border); border-radius: 99px; font-size: 14px; font-family: var(--font); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
-    .tab.active { background: var(--surface); color: var(--text); font-weight: 500; border-color: var(--border2); }
-
+    .tab-row{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px;}
+    .tab-row::-webkit-scrollbar{display:none;}
+    .tab{padding:7px 15px;border:0.5px solid var(--border);border-radius:99px;font-size:14px;font-family:var(--font);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
+    .tab.active{background:var(--surface);color:var(--text);font-weight:500;border-color:var(--border2);}
     /* Card */
-    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 14px; }
-
+    .card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
     /* Amount */
-    .amount-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
-    .currency { font-size: 28px; font-weight: 500; color: var(--text2); line-height: 1; }
-    #amount { font-size: 36px; font-weight: 600; border: none; outline: none; background: transparent; color: var(--text); width: 100%; font-family: var(--font); -moz-appearance: textfield; }
-    #amount::-webkit-outer-spin-button, #amount::-webkit-inner-spin-button { -webkit-appearance: none; }
-    #amount::placeholder { color: var(--text3); }
-    .divider { height: 0.5px; background: var(--border); margin: 12px 0; }
-
+    .amount-row{display:flex;align-items:center;gap:6px;margin-bottom:14px;}
+    .currency{font-size:28px;font-weight:500;color:var(--text2);line-height:1;}
+    #amount{font-size:36px;font-weight:600;border:none;outline:none;background:transparent;color:var(--text);width:100%;font-family:var(--font);-moz-appearance:textfield;}
+    #amount::-webkit-outer-spin-button,#amount::-webkit-inner-spin-button{-webkit-appearance:none;}
+    #amount::placeholder{color:var(--text3);}
+    .divider{height:0.5px;background:var(--border);margin:12px 0;}
     /* Field */
-    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-    .field:last-child { margin-bottom: 0; }
-    .field label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; }
-    .field input[type="text"] { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: var(--font); background: var(--surface2); color: var(--text); transition: border-color 0.15s; }
-    .field input[type="text"]:focus { outline: none; border-color: var(--border2); }
-
+    .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+    .field:last-child{margin-bottom:0;}
+    .field label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;}
+    .field input[type="text"]{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:var(--font);background:var(--surface2);color:var(--text);transition:border-color 0.15s;}
+    .field input[type="text"]:focus{outline:none;border-color:var(--border2);}
     /* Type selector */
-    .person-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .person-btn {
-      padding: 10px 8px; border: 0.5px solid var(--border); border-radius: var(--radius-sm);
-      font-size: 13px; font-family: var(--font); background: var(--surface2); color: var(--text2);
-      cursor: pointer; text-align: center; transition: all 0.15s; font-weight: 500;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .person-btn:active { transform: scale(0.97); }
-    .person-btn.selected-caleb  { background: var(--blue-light);   border-color: var(--blue-border);   color: var(--blue); }
-    .person-btn.selected-tammy  { background: var(--purple-light); border-color: var(--purple-border); color: var(--purple); }
-    .person-btn.selected-common { background: var(--teal-light);   border-color: var(--teal-border);   color: var(--teal); }
-
+    .type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    .type-btn{padding:10px 8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:center;transition:all 0.15s;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;}
+    .type-btn:active{transform:scale(0.97);}
+    .type-btn.sel-caleb{background:var(--blue-light);border-color:var(--blue-border);color:var(--blue);}
+    .type-btn.sel-tammy{background:var(--purple-light);border-color:var(--purple-border);color:var(--purple);}
+    .type-btn.sel-common{background:var(--teal-light);border-color:var(--teal-border);color:var(--teal);}
     /* Category grid */
-    .cat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-    .cat-btn { padding: 9px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: var(--font); background: var(--surface2); color: var(--text2); cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 7px; white-space: nowrap; overflow: hidden; }
-    .cat-btn i { font-size: 15px; flex-shrink: 0; }
-    .cat-btn span { overflow: hidden; text-overflow: ellipsis; }
-    .cat-btn:active { transform: scale(0.97); }
-    .cat-btn.selected { background: var(--green-light); border-color: var(--green-border); color: var(--green); font-weight: 500; }
-
+    .cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
+    .cat-btn{padding:9px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;}
+    .cat-btn i{font-size:15px;flex-shrink:0;}
+    .cat-btn span{overflow:hidden;text-overflow:ellipsis;}
+    .cat-btn:active{transform:scale(0.97);}
+    .cat-btn.selected{background:var(--green-light);border-color:var(--green-border);color:var(--green);font-weight:500;}
     /* Submit */
-    .submit-btn { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--green-mid); color: white; font-size: 16px; font-weight: 600; font-family: var(--font); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s, transform 0.1s; margin-bottom: 14px; }
-    .submit-btn:active { transform: scale(0.98); opacity: 0.9; }
-    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
+    .submit-btn{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--green-mid);color:white;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s,transform 0.1s;margin-bottom:14px;}
+    .submit-btn:active{transform:scale(0.98);opacity:0.9;}
+    .submit-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
     /* Toast */
-    .toast { display: none; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 14px; border: 0.5px solid; }
-    .toast.show { display: flex; }
-    .toast.success { background: var(--green-light); border-color: var(--green-border); color: var(--green); }
-    .toast.warning { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
-    .toast.danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-text); }
-
+    .toast{display:none;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-sm);font-size:14px;margin-bottom:14px;border:0.5px solid;}
+    .toast.show{display:flex;}
+    .toast.success{background:var(--green-light);border-color:var(--green-border);color:var(--green);}
+    .toast.warning{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn-text);}
+    .toast.danger{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger-text);}
     /* Dashboard */
-    .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 16px; }
-    .month-label { font-size: 15px; font-weight: 600; color: var(--text); }
-    .month-arrow { background: none; border: none; cursor: pointer; color: var(--text2); padding: 4px 8px; border-radius: var(--radius-sm); font-size: 18px; display: flex; align-items: center; transition: background 0.15s; }
-    .month-arrow:hover { background: var(--surface2); }
-
-    .remaining-block { border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px; text-align: center; }
-    .remaining-block.ok  { background: var(--green-light); }
-    .remaining-block.warn { background: var(--warn-bg); }
-    .remaining-block.over { background: var(--danger-bg); }
-    .remaining-block.none { background: var(--surface2); }
-    .remaining-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
-    .remaining-block.ok   .remaining-label { color: var(--green); }
-    .remaining-block.warn .remaining-label { color: var(--warn-text); }
-    .remaining-block.over .remaining-label { color: var(--danger-text); }
-    .remaining-block.none .remaining-label { color: var(--text3); }
-    .remaining-amount { font-size: 28px; font-weight: 700; line-height: 1; }
-    .remaining-block.ok   .remaining-amount { color: var(--green); }
-    .remaining-block.warn .remaining-amount { color: var(--warn-text); }
-    .remaining-block.over .remaining-amount { color: var(--danger-text); }
-    .remaining-block.none .remaining-amount { color: var(--text3); }
-
-    .over-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: var(--danger-bg); color: var(--danger-text); border: 0.5px solid var(--danger-border); text-transform: uppercase; letter-spacing: 0.04em; }
-
-    .person-card {
-      background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 14px;
-    }
-    .person-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .person-label { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
-    .person-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
-    .avatar-caleb  { background: var(--blue-mid); }
-    .avatar-tammy  { background: var(--purple-mid); }
-    .avatar-common { background: var(--teal-mid); }
-
-    .budget-bar-wrap { margin-bottom: 10px; }
-    .budget-bar-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin: 6px 0; }
-    .budget-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
-    .bar-caleb  { background: var(--blue-mid); }
-    .bar-tammy  { background: var(--purple-mid); }
-    .bar-common { background: var(--teal-mid); }
-    .bar-over   { background: var(--danger-border); }
-    .budget-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); }
-
-    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-box { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px 14px; }
-    .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; font-weight: 600; }
-    .stat-val { font-size: 20px; font-weight: 600; }
-    .stat-val.over { color: var(--danger-text); }
-
-    .budget-edit-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
-    .budget-edit-row label { font-size: 12px; color: var(--text2); white-space: nowrap; }
-    .budget-input { flex: 1; padding: 7px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font); background: var(--surface2); color: var(--text); }
-    .budget-input:focus { outline: none; border-color: var(--border2); }
-    .budget-save-btn { padding: 7px 14px; border: none; border-radius: var(--radius-sm); background: var(--green-mid); color: white; font-size: 13px; font-weight: 600; font-family: var(--font); cursor: pointer; white-space: nowrap; }
-
-    /* Recent entries */
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .section-header h2 { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
-    .total-badge { font-size: 15px; font-weight: 600; color: var(--green); }
-    .entry { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 0; border-bottom: 0.5px solid var(--border); }
-    .entry:last-child { border-bottom: none; }
-    .entry-left { display: flex; flex-direction: column; gap: 2px; }
-    .entry-cat { font-size: 14px; font-weight: 500; }
-    .entry-meta { font-size: 13px; color: var(--text2); }
-    .entry-time { font-size: 11px; color: var(--text3); margin-top: 1px; }
-    .entry-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
-    .entry-amount { font-size: 15px; font-weight: 600; }
-    .entry-person-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
-    .badge-caleb  { background: var(--blue-light);   color: var(--blue); }
-    .badge-tammy  { background: var(--purple-light); color: var(--purple); }
-    .badge-common { background: var(--teal-light);   color: var(--teal); }
-    .empty { font-size: 14px; color: var(--text3); text-align: center; padding: 20px 0; }
-
+    .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 16px;}
+    .month-label{font-size:15px;font-weight:600;color:var(--text);}
+    .month-arrow{background:none;border:none;cursor:pointer;color:var(--text2);padding:4px 8px;border-radius:var(--radius-sm);font-size:18px;display:flex;align-items:center;transition:background 0.15s;}
+    .month-arrow:hover{background:var(--surface2);}
+    .person-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
+    .person-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .person-label{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;}
+    .person-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0;}
+    .avatar-caleb{background:var(--blue-mid);}
+    .avatar-tammy{background:var(--purple-mid);}
+    .avatar-common{background:var(--teal-mid);}
+    .over-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger-text);border:0.5px solid var(--danger-border);text-transform:uppercase;letter-spacing:0.04em;}
+    .remaining-block{border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;text-align:center;}
+    .remaining-block.ok{background:var(--green-light);}
+    .remaining-block.warn{background:var(--warn-bg);}
+    .remaining-block.over{background:var(--danger-bg);}
+    .remaining-block.none{background:var(--surface2);}
+    .remaining-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+    .remaining-block.ok .remaining-label{color:var(--green);}
+    .remaining-block.warn .remaining-label{color:var(--warn-text);}
+    .remaining-block.over .remaining-label{color:var(--danger-text);}
+    .remaining-block.none .remaining-label{color:var(--text3);}
+    .remaining-amount{font-size:28px;font-weight:700;line-height:1;}
+    .remaining-block.ok .remaining-amount{color:var(--green);}
+    .remaining-block.warn .remaining-amount{color:var(--warn-text);}
+    .remaining-block.over .remaining-amount{color:var(--danger-text);}
+    .remaining-block.none .remaining-amount{color:var(--text3);}
+    .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .stat-box{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;}
+    .stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;font-weight:600;}
+    .stat-val{font-size:20px;font-weight:600;}
+    .budget-bar-wrap{margin-bottom:10px;}
+    .budget-bar-track{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:6px 0;}
+    .budget-bar-fill{height:100%;border-radius:99px;transition:width 0.5s ease;}
+    .bar-caleb{background:var(--blue-mid);}
+    .bar-tammy{background:var(--purple-mid);}
+    .bar-common{background:var(--teal-mid);}
+    .bar-over{background:var(--danger-border);}
+    .budget-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);}
+    .budget-edit-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);}
+    .budget-edit-row label{font-size:12px;color:var(--text2);white-space:nowrap;}
+    .budget-input{flex:1;padding:7px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font);background:var(--surface2);color:var(--text);}
+    .budget-input:focus{outline:none;border-color:var(--border2);}
+    .budget-save-btn{padding:7px 14px;border:none;border-radius:var(--radius-sm);background:var(--green-mid);color:white;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap;}
+    /* Recent */
+    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .section-header h2{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;}
+    .total-badge{font-size:15px;font-weight:600;color:var(--green);}
+    .entry{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:0.5px solid var(--border);}
+    .entry:last-child{border-bottom:none;}
+    .entry-left{display:flex;flex-direction:column;gap:2px;}
+    .entry-cat{font-size:14px;font-weight:500;}
+    .entry-meta{font-size:13px;color:var(--text2);}
+    .entry-time{font-size:11px;color:var(--text3);margin-top:1px;}
+    .entry-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+    .entry-amount{font-size:15px;font-weight:600;}
+    .entry-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;}
+    .badge-caleb{background:var(--blue-light);color:var(--blue);}
+    .badge-tammy{background:var(--purple-light);color:var(--purple);}
+    .badge-common{background:var(--teal-light);color:var(--teal);}
+    .empty{font-size:14px;color:var(--text3);text-align:center;padding:20px 0;}
     /* Setup */
-    .setup-section { margin-bottom: 14px; }
-    .setup-card { background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
-    .setup-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-    .setup-card ol { padding-left: 18px; }
-    .setup-card li { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 2px; }
-    .setup-card li strong { color: var(--text); font-weight: 500; }
-    .code-block { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-family: var(--mono); font-size: 12px; color: var(--text2); word-break: break-all; line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
-    .copy-btn { margin-top: 10px; padding: 7px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--surface); color: var(--text2); font-family: var(--font); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
-    .copy-btn:hover { background: var(--surface2); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); display: inline-block; margin-right: 6px; }
-    .status-dot.connected { background: var(--green-mid); }
-    .pending-section { margin-top: 10px; }
-    .pending-count { font-size: 13px; color: var(--warn-text); background: var(--warn-bg); border: 0.5px solid var(--warn-border); padding: 8px 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; }
-    .retry-btn { margin-left: auto; font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--warn-border); border-radius: var(--radius-sm); background: transparent; color: var(--warn-text); font-family: var(--font); cursor: pointer; }
-
-    /* Loading overlay */
-    .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 100; transition: opacity 0.3s; }
-    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-    .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green-mid); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    .loading-text { font-size: 14px; color: var(--text2); }
-    .sync-banner { display: none; align-items: center; gap: 8px; padding: 10px 14px; background: var(--blue-light); border: 0.5px solid var(--blue-border); color: var(--blue); border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 14px; }
-    .sync-banner.show { display: flex; }
+    .setup-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
+    .setup-card h3{font-size:15px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+    .setup-card ol{padding-left:18px;}
+    .setup-card li{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:2px;}
+    .setup-card li strong{color:var(--text);font-weight:500;}
+    .code-block{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-family:var(--mono);font-size:12px;color:var(--text2);word-break:break-all;line-height:1.6;margin-top:10px;white-space:pre-wrap;}
+    .copy-btn{margin-top:10px;padding:7px 14px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text2);font-family:var(--font);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);display:inline-block;margin-right:6px;}
+    .status-dot.connected{background:var(--green-mid);}
+    .pending-count{font-size:13px;color:var(--warn-text);background:var(--warn-bg);border:0.5px solid var(--warn-border);padding:8px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;margin-top:10px;}
+    .retry-btn{margin-left:auto;font-size:12px;padding:4px 10px;border:0.5px solid var(--warn-border);border-radius:var(--radius-sm);background:transparent;color:var(--warn-text);font-family:var(--font);cursor:pointer;}
+    /* Loading */
+    .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:100;transition:opacity 0.3s;}
+    .loading-overlay.hidden{opacity:0;pointer-events:none;}
+    .loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green-mid);border-radius:50%;animation:spin 0.8s linear infinite;}
+    .loading-text{font-size:14px;color:var(--text2);}
+    .sync-banner{display:none;align-items:center;gap:8px;padding:10px 14px;background:var(--green-light);border:0.5px solid var(--green-border);color:var(--green);border-radius:var(--radius-sm);font-size:13px;margin-bottom:14px;}
+    .sync-banner.show{display:flex;}
+    @keyframes spin{to{transform:rotate(360deg);}}
   </style>
 </head>
 <body>
@@ -214,875 +185,571 @@
 <div class="app">
   <div class="header">
     <div class="header-icon">
-      <i class="ti ti-wallet" style="font-size:20px; color:var(--green);" aria-hidden="true"></i>
+      <i class="ti ti-wallet" style="font-size:20px;color:var(--green);"></i>
     </div>
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
     </div>
-    <button id="refresh-btn" onclick="refreshFromSheets()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" aria-label="Refresh from Sheets" title="Refresh from Sheets">
-      <i class="ti ti-refresh" style="font-size:20px;" aria-hidden="true"></i>
+    <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
+      <i class="ti ti-refresh" style="font-size:20px;"></i>
     </button>
   </div>
 
   <div class="tab-row">
-    <button class="tab active" onclick="showTab('log')">Log</button>
-    <button class="tab" onclick="showTab('dashboard')">Dashboard</button>
-    <button class="tab" onclick="showTab('recent')">Recent</button>
-    <button class="tab" onclick="showTab('setup')">Setup</button>
+    <button class="tab active"     onclick="showTab('log')">Log</button>
+    <button class="tab"            onclick="showTab('dashboard')">Dashboard</button>
+    <button class="tab"            onclick="showTab('recent')">Recent</button>
+    <button class="tab"            onclick="showTab('setup')">Setup</button>
   </div>
 
-  <!-- LOG TAB -->
+  <!-- LOG -->
   <div id="tab-log">
     <div id="sync-banner" class="sync-banner">
-      <i class="ti ti-refresh" style="font-size:15px;flex-shrink:0;" aria-hidden="true"></i>
-      <span id="sync-banner-msg">Synced from Google Sheets</span>
+      <i class="ti ti-check" style="font-size:15px;flex-shrink:0;"></i>
+      <span id="sync-msg">Loaded from Google Sheets</span>
     </div>
-
     <div id="toast" class="toast success" role="alert" aria-live="polite">
-      <i class="ti ti-check" style="font-size:16px; flex-shrink:0;" aria-hidden="true"></i>
+      <i class="ti ti-check" style="font-size:16px;flex-shrink:0;"></i>
       <span id="toast-msg"></span>
     </div>
-
     <div class="card">
       <div class="amount-row">
         <span class="currency">$</span>
-        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" inputmode="decimal" aria-label="Expense amount" />
+        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" inputmode="decimal" />
       </div>
       <div class="divider"></div>
-
       <div class="field" style="margin-bottom:14px;">
         <label>Type</label>
-        <div class="person-row" id="person-row" role="group" aria-label="Select type">
-          <button class="person-btn" id="btn-caleb"  onclick="selectPerson('Caleb')"  aria-pressed="false">
-            <i class="ti ti-user" aria-hidden="true"></i> Caleb
-          </button>
-          <button class="person-btn" id="btn-tammy"  onclick="selectPerson('Tammy')"  aria-pressed="false">
-            <i class="ti ti-user" aria-hidden="true"></i> Tammy
-          </button>
-          <button class="person-btn" id="btn-common" onclick="selectPerson('Common')" aria-pressed="false">
-            <i class="ti ti-users" aria-hidden="true"></i> Common
-          </button>
+        <div class="type-row">
+          <button class="type-btn" id="btn-caleb"  onclick="selectType('Caleb')"><i class="ti ti-user"></i>Caleb</button>
+          <button class="type-btn" id="btn-tammy"  onclick="selectType('Tammy')"><i class="ti ti-user"></i>Tammy</button>
+          <button class="type-btn" id="btn-common" onclick="selectType('Common')"><i class="ti ti-users"></i>Common</button>
         </div>
       </div>
-
       <div class="field" style="margin-bottom:16px;">
         <label>Category</label>
-        <div class="cat-grid" id="cat-grid" role="group" aria-label="Expense category"></div>
+        <div class="cat-grid" id="cat-grid"></div>
       </div>
-
       <div class="field">
         <label>Item description</label>
-        <input type="text" id="item" placeholder="e.g. Kopi at Ya Kun, Grab to Orchard…" aria-label="Item description" />
+        <input type="text" id="item" placeholder="e.g. Kopi at Ya Kun, Grab to Orchard…" />
       </div>
     </div>
-
     <button class="submit-btn" id="submit-btn" onclick="submitExpense()">
-      <i class="ti ti-plus" style="font-size:18px;" aria-hidden="true"></i>
-      Log expense
+      <i class="ti ti-plus" style="font-size:18px;"></i>Log expense
     </button>
   </div>
 
-  <!-- DASHBOARD TAB -->
+  <!-- DASHBOARD -->
   <div id="tab-dashboard" style="display:none;">
-
-    <!-- Month header -->
     <div class="month-nav">
-      <button class="month-arrow" onclick="shiftMonth(-1)" aria-label="Previous month">
-        <i class="ti ti-chevron-left" aria-hidden="true"></i>
-      </button>
-      <span class="month-label" id="dash-month-label">June 2026</span>
-      <button class="month-arrow" onclick="shiftMonth(1)" aria-label="Next month">
-        <i class="ti ti-chevron-right" aria-hidden="true"></i>
-      </button>
+      <button class="month-arrow" onclick="shiftMonth(-1)"><i class="ti ti-chevron-left"></i></button>
+      <span class="month-label" id="dash-month-label"></span>
+      <button class="month-arrow" onclick="shiftMonth(1)"><i class="ti ti-chevron-right"></i></button>
     </div>
-
-    <!-- Caleb card -->
-    <div class="person-card">
-      <div class="person-card-header">
-        <div class="person-label">
-          <div class="person-avatar avatar-caleb">C</div>
-          Caleb
-        </div>
-        <span class="over-badge" id="caleb-over-badge" style="display:none;">Over budget</span>
-      </div>
-
-      <!-- Big remaining -->
-      <div class="remaining-block" id="caleb-remaining-block">
-        <div class="remaining-label" id="caleb-remaining-label">Remaining</div>
-        <div class="remaining-amount" id="caleb-remaining-amount">—</div>
-      </div>
-
-      <div class="stat-row" style="margin-bottom:12px;">
-        <div class="stat-box">
-          <div class="stat-label">Spent</div>
-          <div class="stat-val" id="caleb-spent">$0.00</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Monthly budget</div>
-          <div class="stat-val" id="caleb-budget-val">—</div>
-        </div>
-      </div>
-      <div class="budget-bar-wrap">
-        <div class="budget-bar-track">
-          <div class="budget-bar-fill bar-caleb" id="caleb-bar" style="width:0%"></div>
-        </div>
-        <div class="budget-labels">
-          <span id="caleb-bar-pct">—</span>
-          <span id="caleb-bar-label">of monthly budget</span>
-        </div>
-      </div>
-      <div class="budget-edit-row">
-        <label for="caleb-budget-input">Set monthly budget $</label>
-        <input class="budget-input" id="caleb-budget-input" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" />
-        <button class="budget-save-btn" onclick="saveBudget('Caleb')">Save</button>
-      </div>
-    </div>
-
-    <!-- Tammy card -->
-    <div class="person-card">
-      <div class="person-card-header">
-        <div class="person-label">
-          <div class="person-avatar avatar-tammy">T</div>
-          Tammy
-        </div>
-        <span class="over-badge" id="tammy-over-badge" style="display:none;">Over budget</span>
-      </div>
-
-      <!-- Big remaining -->
-      <div class="remaining-block" id="tammy-remaining-block">
-        <div class="remaining-label" id="tammy-remaining-label">Remaining</div>
-        <div class="remaining-amount" id="tammy-remaining-amount">—</div>
-      </div>
-
-      <div class="stat-row" style="margin-bottom:12px;">
-        <div class="stat-box">
-          <div class="stat-label">Spent</div>
-          <div class="stat-val" id="tammy-spent">$0.00</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Monthly budget</div>
-          <div class="stat-val" id="tammy-budget-val">—</div>
-        </div>
-      </div>
-      <div class="budget-bar-wrap">
-        <div class="budget-bar-track">
-          <div class="budget-bar-fill bar-tammy" id="tammy-bar" style="width:0%"></div>
-        </div>
-        <div class="budget-labels">
-          <span id="tammy-bar-pct">—</span>
-          <span id="tammy-bar-label">of monthly budget</span>
-        </div>
-      </div>
-      <div class="budget-edit-row">
-        <label for="tammy-budget-input">Set monthly budget $</label>
-        <input class="budget-input" id="tammy-budget-input" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" />
-        <button class="budget-save-btn" onclick="saveBudget('Tammy')">Save</button>
-      </div>
-    </div>
-
-    <!-- Common card -->
-    <div class="person-card">
-      <div class="person-card-header">
-        <div class="person-label">
-          <div class="person-avatar avatar-common">C</div>
-          Common
-        </div>
-        <span class="over-badge" id="common-over-badge" style="display:none;">Over budget</span>
-      </div>
-      <div class="remaining-block" id="common-remaining-block">
-        <div class="remaining-label" id="common-remaining-label">Remaining</div>
-        <div class="remaining-amount" id="common-remaining-amount">—</div>
-      </div>
-      <div class="stat-row" style="margin-bottom:12px;">
-        <div class="stat-box">
-          <div class="stat-label">Spent</div>
-          <div class="stat-val" id="common-spent">$0.00</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Monthly budget</div>
-          <div class="stat-val" id="common-budget-val">—</div>
-        </div>
-      </div>
-      <div class="budget-bar-wrap">
-        <div class="budget-bar-track">
-          <div class="budget-bar-fill bar-common" id="common-bar" style="width:0%"></div>
-        </div>
-        <div class="budget-labels">
-          <span id="common-bar-pct">—</span>
-          <span id="common-bar-label">of monthly budget</span>
-        </div>
-      </div>
-      <div class="budget-edit-row">
-        <label for="common-budget-input">Set monthly budget $</label>
-        <input class="budget-input" id="common-budget-input" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 2000" />
-        <button class="budget-save-btn" onclick="saveBudget('Common')">Save</button>
-      </div>
-    </div>
-
-    <!-- Combined total -->
+    <div id="dash-cards"></div>
     <div class="card">
       <div class="section-header" style="margin-bottom:0;">
-        <h2>All combined this month</h2>
+        <h2>All combined</h2>
         <span class="total-badge" id="combined-total">$0.00</span>
       </div>
     </div>
   </div>
 
-  <!-- RECENT TAB -->
+  <!-- RECENT -->
   <div id="tab-recent" style="display:none;">
     <div class="card">
       <div class="section-header">
-        <h2>Today</h2>
-        <span class="total-badge" id="today-total">$0.00</span>
+        <h2>Today</h2><span class="total-badge" id="today-total">$0.00</span>
       </div>
       <div id="entries-today"><p class="empty">No entries yet today.</p></div>
     </div>
     <div class="card">
       <div class="section-header">
-        <h2>Earlier</h2>
-        <span class="total-badge" id="earlier-total"></span>
+        <h2>Earlier</h2><span class="total-badge" id="earlier-total"></span>
       </div>
       <div id="entries-earlier"><p class="empty">No earlier entries.</p></div>
     </div>
   </div>
 
-  <!-- SETUP TAB -->
+  <!-- SETUP -->
   <div id="tab-setup" style="display:none;">
     <div class="card" style="margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
         <span class="status-dot" id="conn-dot"></span>
-        <span style="font-size:14px; font-weight:500;" id="conn-label">Not connected</span>
+        <span style="font-size:14px;font-weight:500;" id="conn-label">Not connected</span>
       </div>
       <div class="field">
-        <label>Google Apps Script web app URL</label>
-        <input type="text" id="webhook-url" placeholder="https://script.google.com/macros/s/…/exec" oninput="saveWebhook()" aria-label="Apps Script URL" />
+        <label>Google Apps Script URL</label>
+        <input type="text" id="webhook-url" placeholder="https://script.google.com/macros/s/…/exec" oninput="saveWebhook()" />
       </div>
-      <p style="font-size:12px;color:var(--text3);margin-top:6px;">Paste your deployed URL here. Saved in your browser.</p>
-      <div class="pending-section" id="pending-section" style="display:none;">
+      <p style="font-size:12px;color:var(--text3);margin-top:6px;">Paste your deployed Apps Script URL here.</p>
+      <div id="pending-section" style="display:none;">
         <div class="pending-count">
-          <i class="ti ti-clock" style="font-size:15px;" aria-hidden="true"></i>
+          <i class="ti ti-clock" style="font-size:15px;"></i>
           <span id="pending-msg"></span>
-          <button class="retry-btn" onclick="retryPending()">Retry</button>
+          <button class="retry-btn" onclick="retryPending(false)">Retry</button>
         </div>
       </div>
     </div>
-    <div class="setup-card setup-section">
-      <h3><i class="ti ti-list-numbers" style="font-size:16px;" aria-hidden="true"></i>Setup steps</h3>
+    <div class="setup-card">
+      <h3><i class="ti ti-list-numbers" style="font-size:16px;"></i>Setup steps</h3>
       <ol>
         <li>Create a new Google Sheet</li>
         <li>Click <strong>Extensions → Apps Script</strong></li>
         <li>Delete existing code, paste the script below</li>
-        <li>Click <strong>Deploy → New deployment</strong></li>
-        <li>Type: <strong>Web app</strong> — set access to <strong>Anyone</strong></li>
-        <li>Click <strong>Deploy</strong> and copy the URL</li>
-        <li>Paste the URL into the field above</li>
+        <li>Click <strong>Deploy → New deployment → Web app</strong></li>
+        <li>Set access to <strong>Anyone</strong>, click Deploy</li>
+        <li>Copy the URL and paste it above</li>
       </ol>
     </div>
-    <div class="setup-card setup-section">
-      <h3><i class="ti ti-code" style="font-size:16px;" aria-hidden="true"></i>Apps Script code</h3>
+    <div class="setup-card" style="margin-top:14px;">
+      <h3><i class="ti ti-code" style="font-size:16px;"></i>Apps Script code</h3>
       <div class="code-block" id="script-display"></div>
       <button class="copy-btn" onclick="copyScript(this)">
-        <i class="ti ti-copy" style="font-size:14px;" aria-hidden="true"></i>
-        Copy script
+        <i class="ti ti-copy" style="font-size:14px;"></i>Copy script
       </button>
     </div>
   </div>
 </div>
 
 <script>
+/* ══════════════════════════════════════════════
+   APPS SCRIPT — paste this into Google Apps Script
+═══════════════════════════════════════════════ */
 const APPS_SCRIPT = `function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var data = JSON.parse(e.postData.contents);
-
-  // ── Expense save ─────────────────────────────────────────────────
   var sheet = ss.getSheetByName("Expenses") || ss.insertSheet("Expenses");
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(["Date", "Time", "Type", "Category", "Item", "Amount", "Timestamp"]);
+    sheet.appendRow(["Date","Time","Type","Category","Item","Amount","Timestamp"]);
   }
-  var row = sheet.getRange(sheet.getLastRow() + 1, 1, 1, 7);
-  row.setValues([[data.date, data.time, data.type, data.category, data.item, parseFloat(data.amount), data.ts]]);
+  var row = sheet.getRange(sheet.getLastRow()+1,1,1,7);
+  row.setValues([[data.date,data.time,data.type,data.category,data.item,parseFloat(data.amount),data.ts]]);
   row.getCell(1,1).setNumberFormat("@");
   row.getCell(1,2).setNumberFormat("@");
-  return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var action = e && e.parameter && e.parameter.action ? e.parameter.action : "getExpenses";
+  var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "all";
+  var tz = Session.getScriptTimeZone();
 
-  // ── Save budget via GET params (append-only with saved_at timestamp) ──
+  // Save budget: ?action=saveBudget&type=Caleb&ym=2026-06&budget=700&ts=ISO
   if (action === "saveBudget") {
     var bSheet = ss.getSheetByName("Budgets") || ss.insertSheet("Budgets");
-    if (bSheet.getLastRow() === 0) {
-      bSheet.appendRow(["Type", "MonthKey", "Budget", "SavedAt"]);
+    if (bSheet.getLastRow() === 0) bSheet.appendRow(["Type","YearMonth","Budget","SavedAt"]);
+    var ym = String(e.parameter.ym || "");
+    // Strict validation: must be YYYY-MM
+    if (!/^\\d{4}-\\d{2}$/.test(ym)) {
+      return ContentService.createTextOutput(JSON.stringify({status:"error",reason:"bad ym: "+ym})).setMimeType(ContentService.MimeType.JSON);
     }
-    var typeVal     = String(e.parameter.type || "");
-    var monthKeyVal = String(e.parameter.monthKey || "");
-    var budgetVal   = parseFloat(e.parameter.budget || "0");
-    var savedAt     = String(e.parameter.savedAt || new Date().toISOString());
-    // Sanitise: monthKey must match YYYY-MM format, reject anything else
-    if (!monthKeyVal.match(/^\d{4}-\d{2}$/)) {
-      return ContentService.createTextOutput(JSON.stringify({ status: "error", reason: "invalid monthKey: " + monthKeyVal }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-    bSheet.appendRow([typeVal, monthKeyVal, budgetVal, savedAt]);
-    return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
-      .setMimeType(ContentService.MimeType.JSON);
+    bSheet.appendRow([String(e.parameter.type||""), ym, parseFloat(e.parameter.budget||0), String(e.parameter.ts||new Date().toISOString())]);
+    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
   }
 
-  // ── Return budgets — latest per type+month wins ───────────────────
-  if (action === "getBudgets") {
-    var bSheet = ss.getSheetByName("Budgets");
-    if (!bSheet || bSheet.getLastRow() < 2) {
-      return ContentService.createTextOutput(JSON.stringify({ budgets: [] }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-    var bData = bSheet.getDataRange().getValues();
-    // Build a map: "Type_MonthKey" -> latest {budget, savedAt}
-    var latestMap = {};
-    for (var i = 1; i < bData.length; i++) {
-      var t  = String(bData[i][0]);
-      var mk = String(bData[i][1]);
-      var bv = parseFloat(bData[i][2]);
-      var sa = String(bData[i][3] || "");
-      var key = t + "_" + mk;
-      if (!latestMap[key] || sa > latestMap[key].savedAt) {
-        latestMap[key] = { type: t, monthKey: mk, budget: bv, savedAt: sa };
-      }
-    }
-    var budgets = Object.values(latestMap);
-    return ContentService.createTextOutput(JSON.stringify({ budgets: budgets }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // ── Return expenses + budgets together (default) ─────────────────
-  var sheet = ss.getSheetByName("Expenses");
+  // Default: return expenses + budgets together
   var rows = [];
-  if (sheet && sheet.getLastRow() >= 2) {
-    var displayValues = sheet.getDataRange().getDisplayValues();
-    var rawValues = sheet.getDataRange().getValues();
-    var tz = Session.getScriptTimeZone();
-    for (var i = 1; i < displayValues.length; i++) {
-      var disp = displayValues[i];
-      var raw  = rawValues[i];
-      if (!disp[0] && !disp[2]) continue;
-      var dateStr = String(disp[0] || "").trim();
-      if (dateStr && !dateStr.includes("/") && raw[0] instanceof Date) {
-        dateStr = Utilities.formatDate(raw[0], tz, "dd/MM/yyyy");
-      }
-      var timeStr = String(disp[1] || "").trim();
-      if (!timeStr && raw[1] instanceof Date) {
-        timeStr = Utilities.formatDate(raw[1], tz, "HH:mm");
-      }
-      rows.push({ date: dateStr, time: timeStr, type: String(disp[2]||""), category: String(disp[3]||""), item: String(disp[4]||""), amount: raw[5], ts: String(raw[6]||"") });
+  var eSheet = ss.getSheetByName("Expenses");
+  if (eSheet && eSheet.getLastRow() >= 2) {
+    var dv = eSheet.getDataRange().getDisplayValues();
+    var rv = eSheet.getDataRange().getValues();
+    for (var i = 1; i < dv.length; i++) {
+      if (!dv[i][0] && !dv[i][2]) continue;
+      var dateStr = String(dv[i][0]||"").trim();
+      if (dateStr && !dateStr.includes("/") && rv[i][0] instanceof Date) dateStr = Utilities.formatDate(rv[i][0],tz,"dd/MM/yyyy");
+      var timeStr = String(dv[i][1]||"").trim();
+      if (!timeStr && rv[i][1] instanceof Date) timeStr = Utilities.formatDate(rv[i][1],tz,"HH:mm");
+      rows.push({date:dateStr,time:timeStr,type:String(dv[i][2]||""),category:String(dv[i][3]||""),item:String(dv[i][4]||""),amount:rv[i][5],ts:String(rv[i][6]||"")});
     }
     rows.reverse();
   }
 
-  // Also return latest budgets in the same response
-  var budgets = [];
+  // Budgets: return only latest per type+yearmonth
+  var budgets = {};
   var bSheet = ss.getSheetByName("Budgets");
   if (bSheet && bSheet.getLastRow() >= 2) {
-    var bData = bSheet.getDataRange().getValues();
-    var latestMap = {};
-    for (var i = 1; i < bData.length; i++) {
-      var t  = String(bData[i][0]);
-      var mk = String(bData[i][1]);
-      var bv = parseFloat(bData[i][2]);
-      var sa = String(bData[i][3] || "");
-      // Skip rows with malformed monthKey (must be YYYY-MM)
-      if (!mk.match(/^\d{4}-\d{2}$/)) continue;
-      var bKey = t + "_" + mk;
-      if (!latestMap[bKey] || sa > latestMap[bKey].savedAt) {
-        latestMap[bKey] = { type: t, monthKey: mk, budget: bv, savedAt: sa };
+    var bd = bSheet.getDataRange().getValues();
+    for (var i = 1; i < bd.length; i++) {
+      var type = String(bd[i][0]||"");
+      var ym   = String(bd[i][1]||"");
+      var amt  = parseFloat(bd[i][2]||0);
+      var sat  = String(bd[i][3]||"");
+      if (!/^\\d{4}-\\d{2}$/.test(ym)) continue; // skip malformed
+      var key  = type + "|" + ym;
+      if (!budgets[key] || sat > budgets[key].savedAt) {
+        budgets[key] = {type:type,ym:ym,budget:amt,savedAt:sat};
       }
     }
-    budgets = Object.values(latestMap);
   }
-
-  return ContentService.createTextOutput(JSON.stringify({ rows: rows, budgets: budgets }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({rows:rows,budgets:Object.values(budgets)})).setMimeType(ContentService.MimeType.JSON);
 }`;
 
+/* ══════════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════════ */
+const TYPES = ["Caleb","Tammy","Common"];
+const TYPE_COLORS = {Caleb:"caleb",Tammy:"tammy",Common:"common"};
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const CATEGORIES = [
-  { name: "Breakfast",     icon: "ti-coffee" },
-  { name: "Lunch",         icon: "ti-salad" },
-  { name: "Dinner",        icon: "ti-tools-kitchen-2" },
-  { name: "Grocery",       icon: "ti-shopping-cart" },
-  { name: "Transport",     icon: "ti-bus" },
-  { name: "Coffee",        icon: "ti-cup" },
-  { name: "Entertainment", icon: "ti-device-tv" },
-  { name: "Shopping",      icon: "ti-shopping-bag" },
-  { name: "Household",     icon: "ti-home" },
-  { name: "Parking",       icon: "ti-parking" },
-  { name: "Car Charging",  icon: "ti-charging-pile" },
-  { name: "Healthcare",    icon: "ti-heart-rate-monitor" },
-  { name: "Bills",         icon: "ti-receipt" },
-  { name: "Other",         icon: "ti-dots-circle-horizontal" }
+  {name:"Breakfast",icon:"ti-coffee"},{name:"Lunch",icon:"ti-salad"},
+  {name:"Dinner",icon:"ti-tools-kitchen-2"},{name:"Grocery",icon:"ti-shopping-cart"},
+  {name:"Transport",icon:"ti-bus"},{name:"Coffee",icon:"ti-cup"},
+  {name:"Entertainment",icon:"ti-device-tv"},{name:"Shopping",icon:"ti-shopping-bag"},
+  {name:"Household",icon:"ti-home"},{name:"Parking",icon:"ti-parking"},
+  {name:"Car Charging",icon:"ti-charging-pile"},{name:"Healthcare",icon:"ti-heart-rate-monitor"},
+  {name:"Bills",icon:"ti-receipt"},{name:"Other",icon:"ti-dots-circle-horizontal"}
 ];
 
-let selectedCat = "";
-let selectedType = "";
+/* ══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
 let entries = [];
 let pendingEntries = [];
-let dashYear = new Date().getFullYear();
+let selectedType = "";
+let selectedCat  = "";
+// dashYear/dashMonth are plain integers, always
+let dashYear  = new Date().getFullYear();
 let dashMonth = new Date().getMonth(); // 0-indexed
 
-/* ── Storage ─────────────────────────────────── */
-function loadStorage() {
-  try { entries = JSON.parse(localStorage.getItem("exp_v3_entries") || "[]"); } catch(e) { entries = []; }
-  try { pendingEntries = JSON.parse(localStorage.getItem("exp_v3_pending") || "[]"); } catch(e) { pendingEntries = []; }
-}
-function saveEntries() { localStorage.setItem("exp_v3_entries", JSON.stringify(entries.slice(0, 500))); }
-function savePending() { localStorage.setItem("exp_v3_pending", JSON.stringify(pendingEntries)); }
+// Budget store: plain object keyed "Type|YYYY-MM" → number
+// Only ever written from Sheets response or saveBudget()
+let budgets = {};
 
-function monthKey(year, month) { return year + "-" + String(month + 1).padStart(2, "0"); }
-
-// In-memory budget cache (loaded from Sheets on startup)
-let budgetCache = {};
-
-function getBudget(type, year, month) {
-  const key = type + "_" + monthKey(year, month);
-  return parseFloat(budgetCache[key] || 0);
+/* ══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
+// Always produces "YYYY-MM" from two integers
+function ymKey(year, month) {
+  return year + "-" + String(month + 1).padStart(2,"0");
 }
 
-function setBudgetCache(type, year, month, val) {
-  const key = type + "_" + monthKey(year, month);
-  budgetCache[key] = val;
-  localStorage.setItem("exp_v3_budget_" + key, val); // local fallback
-}
-
-async function loadBudgetsFromSheets(webhook) {
-  try {
-    const res = await fetch(webhook + "?action=getBudgets", { mode: "cors" });
-    const data = await res.json();
-    if (data.budgets && Array.isArray(data.budgets)) {
-      // Iterate in order so last row wins (handles duplicates — latest value is correct)
-      data.budgets.forEach(b => {
-        const key = b.type + "_" + b.monthKey;
-        budgetCache[key] = b.budget;
-        localStorage.setItem("exp_v3_budget_" + key, b.budget);
-      });
-      // Re-render dashboard now that budgets are loaded
-      renderDashboard();
-    }
-  } catch(e) {
-    // Fall back to localStorage silently
-  }
-}
-
-/* ── Init ────────────────────────────────────── */
-async function init() {
-  loadStorage();
+function sgtNow() {
   const now = new Date();
-  const sgtNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const sgt = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  return {
+    dd:   String(sgt.getUTCDate()).padStart(2,"0"),
+    mm:   String(sgt.getUTCMonth()+1).padStart(2,"0"),
+    yyyy: String(sgt.getUTCFullYear()),
+    hh:   String(sgt.getUTCHours()).padStart(2,"0"),
+    min:  String(sgt.getUTCMinutes()).padStart(2,"0"),
+    iso:  now.toISOString()
+  };
+}
+
+function isToday(dateStr) {
+  const t = sgtNow();
+  const full  = t.dd+"/"+t.mm+"/"+t.yyyy;
+  const short = t.dd+"/"+t.mm+"/"+t.yyyy.slice(2);
+  return dateStr === full || dateStr === short;
+}
+
+// Parse dd/mm/yyyy or dd/mm/yy → {month 0-indexed, year 4-digit}
+function parseDateStr(dateStr) {
+  const p = dateStr.split("/");
+  if (p.length !== 3) return null;
+  const y = parseInt(p[2],10);
+  return { day: parseInt(p[0],10), month: parseInt(p[1],10)-1, year: y < 100 ? 2000+y : y };
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+async function init() {
+  // Wipe ALL old budget keys — clean slate
+  Object.keys(localStorage).forEach(k => {
+    if (k.includes("budget") || k.includes("Budget")) localStorage.removeItem(k);
+  });
+
+  try { entries = JSON.parse(localStorage.getItem("exp_entries") || "[]"); } catch(e) { entries=[]; }
+  try { pendingEntries = JSON.parse(localStorage.getItem("exp_pending") || "[]"); } catch(e) { pendingEntries=[]; }
+
+  const t = sgtNow();
   document.getElementById("current-date").textContent =
-    days[sgtNow.getUTCDay()] + ", " + sgtNow.getUTCDate() + " " +
-    months[sgtNow.getUTCMonth()] + " " + sgtNow.getUTCFullYear();
+    ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date().getUTCDay()] +
+    ", " + parseInt(t.dd) + " " + MONTH_NAMES[parseInt(t.mm)-1] + " " + t.yyyy;
+
+  // Build category grid
   const grid = document.getElementById("cat-grid");
   CATEGORIES.forEach(c => {
     const btn = document.createElement("button");
     btn.className = "cat-btn";
-    btn.setAttribute("aria-pressed", "false");
-    btn.innerHTML = `<i class="ti ${c.icon}" aria-hidden="true"></i><span>${c.name}</span>`;
+    btn.innerHTML = `<i class="ti ${c.icon}"></i><span>${c.name}</span>`;
     btn.onclick = () => selectCat(c.name, btn);
     grid.appendChild(btn);
   });
+
   document.getElementById("script-display").textContent = APPS_SCRIPT;
 
-  const saved = localStorage.getItem("exp_v3_webhook");
-  if (saved) { document.getElementById("webhook-url").value = saved; updateConnStatus(true); }
-  else { updateConnStatus(false); }
-
-  ["Caleb","Tammy","Common"].forEach(p => {
-    const b = getBudget(p, dashYear, dashMonth);
-    if (b) document.getElementById(p.toLowerCase() + "-budget-input").value = b;
-  });
+  const wh = localStorage.getItem("exp_webhook");
+  if (wh) {
+    document.getElementById("webhook-url").value = wh;
+    updateConnStatus(true);
+    await fetchAll(wh);
+  } else {
+    updateConnStatus(false);
+    hideOverlay();
+  }
   updatePendingUI();
-
-  const style = document.createElement("style");
-  style.textContent = "@keyframes spin { to { transform: rotate(360deg); } }";
-  document.head.appendChild(style);
-
-  // Clear any stale budget keys from localStorage (old format may have Date objects as keys)
-  Object.keys(localStorage).forEach(k => {
-    if (k.startsWith("exp_v3_budget_")) localStorage.removeItem(k);
-  });
-  budgetCache = {};
-
-  // If webhook is configured, always clear local cache so Sheets is authoritative
-  if (saved) {
-    localStorage.removeItem("exp_v3_entries");
-    entries = [];
-    await loadFromSheets(saved);
-  } else {
-    hideOverlay();
-  }
 }
 
-/* ── Type & Category selectors ─────────────── */
-function selectPerson(name) {
-  selectedType = name;
-  ["Caleb","Tammy","Common"].forEach(p => {
-    const btn = document.getElementById("btn-" + p.toLowerCase());
-    btn.className = "person-btn";
-    btn.setAttribute("aria-pressed", "false");
-  });
-  const sel = document.getElementById("btn-" + name.toLowerCase());
-  sel.className = "person-btn selected-" + name.toLowerCase();
-  sel.setAttribute("aria-pressed", "true");
-}
-
-function selectCat(name, btn) {
-  selectedCat = name;
-  document.querySelectorAll(".cat-btn").forEach(b => { b.classList.remove("selected"); b.setAttribute("aria-pressed","false"); });
-  btn.classList.add("selected");
-  btn.setAttribute("aria-pressed", "true");
-}
-
-/* ── Tab switcher ────────────────────────────── */
-function showTab(t) {
-  ["log","dashboard","recent","setup"].forEach(id => {
-    document.getElementById("tab-"+id).style.display = id === t ? "block" : "none";
-  });
-  document.querySelectorAll(".tab").forEach((btn, i) => {
-    btn.classList.toggle("active", ["log","dashboard","recent","setup"][i] === t);
-  });
-  if (t === "recent") renderRecent();
-  if (t === "dashboard") {
-    renderDashboard();
-    // Async-refresh from Sheets whenever dashboard tab is opened
-    const webhook = localStorage.getItem("exp_v3_webhook");
-    if (webhook) loadFromSheets(webhook);
-  }
-}
-
-/* ── Submit ──────────────────────────────────── */
-async function submitExpense() {
-  const amount = parseFloat(document.getElementById("amount").value);
-  const item   = document.getElementById("item").value.trim();
-  if (!amount || amount <= 0) { showToast("Please enter a valid amount.", "danger"); return; }
-  if (!selectedType)        { showToast("Please select a type.", "danger"); return; }
-  if (!selectedCat)           { showToast("Please select a category.", "danger"); return; }
-
-  const now = new Date();
-  const sgtOffset = 8 * 60;
-  const sgt = new Date(now.getTime() + sgtOffset * 60 * 1000);
-  const dd   = String(sgt.getUTCDate()).padStart(2, "0");
-  const mm   = String(sgt.getUTCMonth() + 1).padStart(2, "0");
-  const yyyy = sgt.getUTCFullYear();
-  const hh   = String(sgt.getUTCHours()).padStart(2, "0");
-  const min  = String(sgt.getUTCMinutes()).padStart(2, "0");
-  const entry = {
-    date:     `${dd}/${mm}/${yyyy}`,
-    time:     `${hh}:${min}`,
-    type:     selectedType,
-    category: selectedCat,
-    item:     item || "-",
-    amount:   amount.toFixed(2),
-    ts:       now.toISOString()
-  };
-
-  entries.unshift(entry);
-  saveEntries();
-
-  const webhook = localStorage.getItem("exp_v3_webhook");
-  const btn = document.getElementById("submit-btn");
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader-2" style="font-size:18px;animation:spin 1s linear infinite;" aria-hidden="true"></i> Saving…';
-
-  if (webhook) {
-    const ok = await sendToSheets(entry, webhook);
-    if (ok) { showToast("Logged & saved to Google Sheets ✓", "success"); }
-    else {
-      pendingEntries.push(entry); savePending();
-      showToast("Saved locally — will sync to Sheets when online.", "warning");
-      updatePendingUI();
-    }
-  } else {
-    showToast("Saved locally. Add your Sheets URL in Setup to sync.", "warning");
-  }
-
-  document.getElementById("amount").value = "";
-  document.getElementById("item").value   = "";
-  selectedCat = ""; selectedType = "";
-  document.querySelectorAll(".cat-btn").forEach(b => { b.classList.remove("selected"); b.setAttribute("aria-pressed","false"); });
-  ["Caleb","Tammy","Common"].forEach(p => { document.getElementById("btn-"+p.toLowerCase()).className = "person-btn"; });
-  btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-plus" style="font-size:18px;" aria-hidden="true"></i> Log expense';
-}
-
-/* ── Sheets sync ─────────────────────────────── */
-function hideOverlay() {
-  const o = document.getElementById("loading-overlay");
-  o.classList.add("hidden");
-  setTimeout(() => o.style.display = "none", 350);
-}
-
-function showSyncBanner(count) {
-  const b = document.getElementById("sync-banner");
-  document.getElementById("sync-banner-msg").textContent =
-    count > 0 ? `Loaded ${count} entries from Google Sheets` : "No entries found in Google Sheets";
-  b.classList.add("show");
-  setTimeout(() => b.classList.remove("show"), 4000);
-}
-
-async function loadFromSheets(webhook) {
+/* ══════════════════════════════════════════════
+   FETCH ALL (expenses + budgets in one call)
+═══════════════════════════════════════════════ */
+async function fetchAll(wh) {
   try {
-    const res = await fetch(webhook + "?action=getExpenses", { mode: "cors" });
+    const res  = await fetch(wh, { mode: "cors" });
     const data = await res.json();
-    console.log("Sheets response keys:", Object.keys(data));
-    console.log("Budgets from Sheets:", JSON.stringify(data.budgets));
-    console.log("Row count:", data.rows ? data.rows.length : "none");
-    if (data.rows && Array.isArray(data.rows)) {
-      entries = data.rows.map(r => {
-        // ── Date ──────────────────────────────────────────────────────
-        // The Date column is already in SGT. Normalise to dd/mm/yyyy.
-        let dateStr = String(r.date || "").trim();
 
-        // If Sheets returned a Date object as ISO (e.g. "2026-06-09T00:00:00.000Z"),
-        // extract the date portion directly from the ISO string (YYYY-MM-DD) — no timezone shift.
-        if (dateStr.match(/^\d{4}-\d{2}-\d{2}T/)) {
-          const [yyyy, mm, dd] = dateStr.split("T")[0].split("-");
-          dateStr = `${dd}/${mm}/${yyyy}`;
-        }
-        // Handle yy format (e.g. "09/06/26" → "09/06/2026")
-        const dateParts = dateStr.split("/");
-        if (dateParts.length === 3 && dateParts[2].length === 2) {
-          dateStr = `${dateParts[0]}/${dateParts[1]}/20${dateParts[2]}`;
-        }
-
-        // ── Time ──────────────────────────────────────────────────────
-        // The Time column is already in SGT. Extract HH:mm as plain text.
-        let timeStr = String(r.time || "").trim();
-
-        // If Sheets returned a time as "11:31 AM" / "4:10 PM" style, convert to 24h
-        const ampm = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-        if (ampm) {
-          let h = parseInt(ampm[1], 10);
-          const m = ampm[2];
-          const period = ampm[3].toUpperCase();
-          if (period === "AM" && h === 12) h = 0;
-          if (period === "PM" && h !== 12) h += 12;
-          timeStr = `${String(h).padStart(2,"0")}:${m}`;
-        }
-        // If Sheets returned a 1899-epoch Date object for time-only cells
-        if (timeStr.match(/^1899-12-30T/) || timeStr.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
-          const t = new Date(timeStr);
-          if (!isNaN(t)) {
-            // Extract UTC hours/minutes directly — Sheets stores time as UTC offset from 1899
-            timeStr = `${String(t.getUTCHours()).padStart(2,"0")}:${String(t.getUTCMinutes()).padStart(2,"0")}`;
-          }
-        }
-        // Strip seconds if present (e.g. "22:21:00" → "22:21")
-        timeStr = timeStr.replace(/^(\d{2}:\d{2}):\d{2}$/, "$1");
-
-        // ── Sort key (ts) ─────────────────────────────────────────────
-        // Build a reliable sort key from the cleaned date + time.
-        // We treat these as SGT (UTC+8), so subtract 8h to get UTC for ISO string.
-        let ts = "";
-        const dp = dateStr.split("/");
-        if (dp.length === 3) {
-          const isoLocal = `${dp[2]}-${dp[1]}-${dp[0]}T${timeStr || "00:00"}:00+08:00`;
-          const d = new Date(isoLocal);
-          ts = isNaN(d) ? new Date().toISOString() : d.toISOString();
-        } else {
-          ts = new Date().toISOString();
-        }
-
-        return {
-          date:     dateStr,
-          time:     timeStr,
-          type:     String(r.type || ""),
-          category: String(r.category || ""),
-          item:     String(r.item || ""),
-          amount:   String(parseFloat(r.amount) || 0),
-          ts
-        };
-      }).filter(r => r.date);
-      saveEntries();
-
-      // Process budgets from the same response
-      if (data.budgets && Array.isArray(data.budgets)) {
-        console.log("Processing budgets:", data.budgets.length, "entries");
-        data.budgets.forEach(b => {
-          const key = b.type + "_" + b.monthKey;
-          console.log("Setting budget cache:", key, "=", b.budget);
-          budgetCache[key] = b.budget;
-          localStorage.setItem("exp_v3_budget_" + key, b.budget);
-        });
-      } else {
-        console.log("No budgets array in response");
-      }
-      console.log("Budget cache after load:", JSON.stringify(budgetCache));
-      renderDashboard();
-
-      if (pendingEntries.length > 0) await retryPending(true);
-      hideOverlay();
-      showSyncBanner(entries.length);
-    } else {
-      throw new Error("Unexpected response");
+    // Process expenses
+    if (Array.isArray(data.rows)) {
+      entries = data.rows.map(normaliseRow).filter(r => r.date);
+      localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
     }
+
+    // Process budgets — key is "Type|YYYY-MM"
+    budgets = {};
+    if (Array.isArray(data.budgets)) {
+      data.budgets.forEach(b => {
+        const key = b.type + "|" + b.ym;
+        budgets[key] = parseFloat(b.budget) || 0;
+      });
+    }
+
+    renderDashboard();
+    if (pendingEntries.length > 0) await retryPending(true);
+    showSyncBanner(entries.length);
   } catch(err) {
-    console.error("loadFromSheets error:", err);
+    console.error("fetchAll error:", err);
+    // fall back to cached entries, empty budgets
+    renderDashboard();
+  } finally {
     hideOverlay();
-    if (entries.length === 0) showSyncBanner(0);
   }
 }
 
-async function sendToSheets(entry, webhook) {
-  try {
-    await fetch(webhook, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(entry), mode:"no-cors" });
-    return true;
-  } catch(e) { return false; }
-}
-
-async function retryPending(silent = false) {
-  const webhook = localStorage.getItem("exp_v3_webhook");
-  if (!webhook || !pendingEntries.length) return;
-  if (!silent) document.querySelector(".retry-btn").textContent = "Syncing…";
-  let synced = 0; const remaining = [];
-  for (const e of pendingEntries) { if (await sendToSheets(e, webhook)) synced++; else remaining.push(e); }
-  pendingEntries = remaining; savePending(); updatePendingUI();
-  if (!silent) {
-    if (synced > 0) showToast(`Synced ${synced} entr${synced>1?"ies":"y"} to Sheets ✓`, "success");
-    else showToast("Sync failed — check your URL in Setup.", "danger");
+function normaliseRow(r) {
+  let dateStr = String(r.date || "").trim();
+  if (dateStr.match(/^\d{4}-\d{2}-\d{2}T/)) {
+    const [yyyy,mm,dd] = dateStr.split("T")[0].split("-");
+    dateStr = dd+"/"+mm+"/"+yyyy;
   }
+  const dp = dateStr.split("/");
+  if (dp.length===3 && dp[2].length===2) dateStr = dp[0]+"/"+dp[1]+"/20"+dp[2];
+
+  let timeStr = String(r.time || "").trim();
+  const ampm = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (ampm) {
+    let h=parseInt(ampm[1],10); const m=ampm[2],per=ampm[3].toUpperCase();
+    if(per==="AM"&&h===12)h=0; if(per==="PM"&&h!==12)h+=12;
+    timeStr=String(h).padStart(2,"0")+":"+m;
+  }
+  if (timeStr.match(/1899-12-30T/)||timeStr.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+    const t=new Date(timeStr);
+    if(!isNaN(t)) timeStr=String(t.getUTCHours()).padStart(2,"0")+":"+String(t.getUTCMinutes()).padStart(2,"0");
+  }
+  timeStr = timeStr.replace(/^(\d{2}:\d{2}):\d{2}$/,"$1");
+
+  return { date:dateStr, time:timeStr, type:String(r.type||""), category:String(r.category||""), item:String(r.item||""), amount:String(parseFloat(r.amount)||0), ts:r.ts||"" };
 }
 
-/* ── Dashboard ───────────────────────────────── */
-const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-function shiftMonth(delta) {
-  dashMonth += delta;
-  if (dashMonth > 11) { dashMonth = 0; dashYear++; }
-  if (dashMonth < 0)  { dashMonth = 11; dashYear--; }
+/* ══════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════ */
+function shiftMonth(d) {
+  dashMonth += d;
+  if (dashMonth>11){dashMonth=0;dashYear++;}
+  if (dashMonth<0){dashMonth=11;dashYear--;}
   renderDashboard();
 }
 
 function renderDashboard() {
-  // Update month label
+  const ym = ymKey(dashYear, dashMonth);
   document.getElementById("dash-month-label").textContent = MONTH_NAMES[dashMonth] + " " + dashYear;
 
-  // Filter entries by parsing the date string directly (dd/mm/yyyy) — avoids ts timezone issues
+  // Filter entries by this month
   const monthEntries = entries.filter(e => {
-    const parts = e.date ? e.date.split("/") : [];
-    if (parts.length !== 3) return false;
-    const entryMonth = parseInt(parts[1], 10) - 1; // 0-indexed
-    const entryYear  = parseInt(parts[2], 10);
-    // Handle 2-digit years from Sheets (e.g. "26" → 2026)
-    const fullYear = entryYear < 100 ? 2000 + entryYear : entryYear;
-    return entryMonth === dashMonth && fullYear === dashYear;
+    const p = parseDateStr(e.date);
+    return p && p.month === dashMonth && p.year === dashYear;
   });
 
-  ["Caleb","Tammy","Common"].forEach(type => {
-    const pEntries = monthEntries.filter(e => e.type === type);
-    const spent = pEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
-    const budget = getBudget(type, dashYear, dashMonth);
-    const pid = type.toLowerCase();
+  const container = document.getElementById("dash-cards");
+  container.innerHTML = "";
 
-    document.getElementById(pid + "-spent").textContent = "$" + spent.toFixed(2);
+  let combinedSpent = 0;
 
-    // Pre-fill budget input for the viewed month
-    const budgetInput = document.getElementById(pid + "-budget-input");
-    budgetInput.value = budget > 0 ? budget : "";
+  TYPES.forEach(type => {
+    const spent = monthEntries.filter(e => e.type === type).reduce((s,e) => s+parseFloat(e.amount),0);
+    combinedSpent += spent;
+    const budgetKey = type + "|" + ym;
+    const budget = budgets[budgetKey] || 0;
+    const color = TYPE_COLORS[type];
 
-    const overBadge = document.getElementById(pid + "-over-badge");
-    const remBlock  = document.getElementById(pid + "-remaining-block");
-    const remLabel  = document.getElementById(pid + "-remaining-label");
-    const remAmt    = document.getElementById(pid + "-remaining-amount");
+    const remaining = budget - spent;
+    const pct = budget > 0 ? Math.min((spent/budget)*100,100) : 0;
+    const over = budget > 0 && spent > budget;
+    const warn = budget > 0 && !over && pct >= 80;
 
-    if (budget > 0) {
-      document.getElementById(pid + "-budget-val").textContent = "$" + budget.toFixed(2);
-      const remaining = budget - spent;
-      const pct = Math.min((spent / budget) * 100, 100);
-      const over = spent > budget;
-      const warn = !over && pct >= 80;
+    const remClass = budget===0 ? "none" : over ? "over" : warn ? "warn" : "ok";
+    const remLabel = over ? "Over budget by" : "Remaining";
+    const remAmt   = budget===0 ? "—" : "$"+Math.abs(remaining).toFixed(2);
+    const barClass = over ? "bar-over" : "bar-"+color;
+    const budgetTxt= budget > 0 ? "$"+budget.toFixed(2) : "—";
+    const barW     = budget > 0 ? pct.toFixed(1) : "0";
+    const pctTxt   = budget > 0 ? Math.round(pct)+"%" : "—";
 
-      // Bar
-      const bar = document.getElementById(pid + "-bar");
-      bar.style.width = pct + "%";
-      bar.className = "budget-bar-fill " + (over ? "bar-over" : "bar-" + pid);
-      document.getElementById(pid + "-bar-pct").textContent = Math.round((spent / budget) * 100) + "%";
-      document.getElementById(pid + "-bar-label").textContent = "of monthly budget";
-
-      // Over badge
-      overBadge.style.display = over ? "inline-block" : "none";
-
-      // Remaining block
-      remBlock.className = "remaining-block " + (over ? "over" : warn ? "warn" : "ok");
-      remLabel.textContent = over ? "Over budget by" : "Remaining";
-      remAmt.textContent = "$" + Math.abs(remaining).toFixed(2);
-
-    } else {
-      document.getElementById(pid + "-budget-val").textContent = "—";
-      document.getElementById(pid + "-bar").style.width = "0%";
-      document.getElementById(pid + "-bar-pct").textContent = "—";
-      document.getElementById(pid + "-bar-label").textContent = "set a budget below";
-      overBadge.style.display = "none";
-      remBlock.className = "remaining-block none";
-      remLabel.textContent = "Remaining";
-      remAmt.textContent = "—";
-    }
+    container.innerHTML += `
+      <div class="person-card">
+        <div class="person-card-header">
+          <div class="person-label">
+            <div class="person-avatar avatar-${color}">${type[0]}</div>${type}
+          </div>
+          ${over ? '<span class="over-badge">Over budget</span>' : ''}
+        </div>
+        <div class="remaining-block ${remClass}">
+          <div class="remaining-label">${remLabel}</div>
+          <div class="remaining-amount">${remAmt}</div>
+        </div>
+        <div class="stat-row" style="margin-bottom:12px;">
+          <div class="stat-box"><div class="stat-label">Spent</div><div class="stat-val">$${spent.toFixed(2)}</div></div>
+          <div class="stat-box"><div class="stat-label">Monthly budget</div><div class="stat-val">${budgetTxt}</div></div>
+        </div>
+        <div class="budget-bar-wrap">
+          <div class="budget-bar-track"><div class="budget-bar-fill ${barClass}" style="width:${barW}%"></div></div>
+          <div class="budget-labels"><span>${pctTxt}</span><span>${budget>0?"of monthly budget":"set a budget below"}</span></div>
+        </div>
+        <div class="budget-edit-row">
+          <label>Set monthly budget $</label>
+          <input class="budget-input" id="bi-${type}" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" value="${budget>0?budget:""}" />
+          <button class="budget-save-btn" onclick="saveBudget('${type}')">Save</button>
+        </div>
+      </div>`;
   });
 
-  const combined = monthEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
-  document.getElementById("combined-total").textContent = "$" + combined.toFixed(2);
+  document.getElementById("combined-total").textContent = "$"+combinedSpent.toFixed(2);
 }
 
 async function saveBudget(type) {
-  const val = parseFloat(document.getElementById(type.toLowerCase() + "-budget-input").value);
-  if (!val || val <= 0) { showToast("Please enter a valid budget amount.", "danger"); return; }
-  setBudgetCache(type, dashYear, dashMonth, val);
-  renderDashboard();
-  const mk = MONTH_NAMES[dashMonth] + " " + dashYear;
-  showToast(type + "'s budget for " + mk + " set to $" + val.toFixed(2) + " ✓", "success");
+  const input = document.getElementById("bi-"+type);
+  const val = parseFloat(input.value);
+  if (!val || val <= 0) { showToast("Please enter a valid budget amount.","danger"); return; }
 
-  // Push budget to Sheets via GET params (avoids no-cors body stripping issue)
-  const webhook = localStorage.getItem("exp_v3_webhook");
-  if (webhook) {
+  const ym = ymKey(dashYear, dashMonth);
+  const key = type + "|" + ym;
+  budgets[key] = val;
+  renderDashboard();
+  showToast(type+"'s budget for "+MONTH_NAMES[dashMonth]+" "+dashYear+" set to $"+val.toFixed(2)+" ✓","success");
+
+  const wh = localStorage.getItem("exp_webhook");
+  if (wh) {
     try {
-      const params = new URLSearchParams({
-        action: "saveBudget",
-        type: type,
-        monthKey: monthKey(dashYear, dashMonth),
-        budget: val,
-        savedAt: new Date().toISOString()
-      });
-      await fetch(webhook + "?" + params.toString(), { mode: "no-cors" });
-    } catch(e) { /* fail silently, local cache already saved */ }
+      const ts = new Date().toISOString();
+      const url = wh+"?action=saveBudget&type="+encodeURIComponent(type)+"&ym="+encodeURIComponent(ym)+"&budget="+val+"&ts="+encodeURIComponent(ts);
+      await fetch(url, { mode: "no-cors" });
+    } catch(e) { /* silent */ }
   }
 }
 
-/* ── Recent ──────────────────────────────────── */
-function renderRecent() {
-  const now = new Date();
-  const sgt = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-  const dd   = String(sgt.getUTCDate()).padStart(2,"0");
-  const mm   = String(sgt.getUTCMonth()+1).padStart(2,"0");
-  const yyyy = sgt.getUTCFullYear();
-  const yy   = String(yyyy).slice(2);
-  // Match both dd/mm/yyyy (app-logged) and dd/mm/yy (Sheets-formatted)
-  const isToday = d => d === `${dd}/${mm}/${yyyy}` || d === `${dd}/${mm}/${yy}`;
+/* ══════════════════════════════════════════════
+   LOG EXPENSE
+═══════════════════════════════════════════════ */
+function selectType(name) {
+  selectedType = name;
+  TYPES.forEach(t => {
+    const b = document.getElementById("btn-"+t.toLowerCase());
+    b.className = "type-btn";
+    b.setAttribute("aria-pressed","false");
+  });
+  const sel = document.getElementById("btn-"+name.toLowerCase());
+  sel.className = "type-btn sel-"+name.toLowerCase();
+  sel.setAttribute("aria-pressed","true");
+}
 
-  const todayEntries   = entries.filter(e => isToday(e.date));
-  const earlierEntries = entries.filter(e => !isToday(e.date));
-  const todayTotal = todayEntries.reduce((s,e) => s + parseFloat(e.amount), 0);
-  document.getElementById("today-total").textContent = "$" + todayTotal.toFixed(2);
-  document.getElementById("entries-today").innerHTML = todayEntries.length
-    ? todayEntries.map(entryHTML).join("") : '<p class="empty">No entries yet today.</p>';
-  const earlierTotal = earlierEntries.reduce((s,e) => s + parseFloat(e.amount), 0);
-  document.getElementById("earlier-total").textContent = earlierEntries.length ? "$" + earlierTotal.toFixed(2) : "";
-  document.getElementById("entries-earlier").innerHTML = earlierEntries.length
-    ? earlierEntries.map(entryHTML).join("") : '<p class="empty">No earlier entries.</p>';
+function selectCat(name, btn) {
+  selectedCat = name;
+  document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+}
+
+async function submitExpense() {
+  const amount = parseFloat(document.getElementById("amount").value);
+  const item   = document.getElementById("item").value.trim();
+  if (!amount || amount<=0) { showToast("Please enter a valid amount.","danger"); return; }
+  if (!selectedType)        { showToast("Please select a type.","danger"); return; }
+  if (!selectedCat)         { showToast("Please select a category.","danger"); return; }
+
+  const t = sgtNow();
+  const entry = {
+    date: t.dd+"/"+t.mm+"/"+t.yyyy,
+    time: t.hh+":"+t.min,
+    type: selectedType, category: selectedCat,
+    item: item||"-", amount: amount.toFixed(2), ts: t.iso
+  };
+
+  entries.unshift(entry);
+  localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
+
+  const wh = localStorage.getItem("exp_webhook");
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="font-size:18px;animation:spin 1s linear infinite;"></i> Saving…';
+
+  if (wh) {
+    const ok = await sendEntry(entry, wh);
+    if (ok) { showToast("Logged & saved to Google Sheets ✓","success"); }
+    else {
+      pendingEntries.push(entry);
+      localStorage.setItem("exp_pending", JSON.stringify(pendingEntries));
+      showToast("Saved locally — will sync when online.","warning");
+      updatePendingUI();
+    }
+  } else {
+    showToast("Saved locally. Add your Sheets URL in Setup to sync.","warning");
+  }
+
+  document.getElementById("amount").value = "";
+  document.getElementById("item").value   = "";
+  selectedType = ""; selectedCat = "";
+  document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("selected"));
+  TYPES.forEach(t => { document.getElementById("btn-"+t.toLowerCase()).className="type-btn"; });
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-plus" style="font-size:18px;"></i>Log expense';
+}
+
+async function sendEntry(entry, wh) {
+  try {
+    await fetch(wh, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(entry), mode:"no-cors" });
+    return true;
+  } catch(e) { return false; }
+}
+
+async function retryPending(silent=false) {
+  const wh = localStorage.getItem("exp_webhook");
+  if (!wh||!pendingEntries.length) return;
+  let synced=0; const rem=[];
+  for (const e of pendingEntries) { if(await sendEntry(e,wh)) synced++; else rem.push(e); }
+  pendingEntries=rem;
+  localStorage.setItem("exp_pending",JSON.stringify(pendingEntries));
+  updatePendingUI();
+  if (!silent) showToast(synced>0?`Synced ${synced} entr${synced>1?"ies":"y"} ✓`:"Sync failed — check your URL.","success");
+}
+
+/* ══════════════════════════════════════════════
+   RECENT
+═══════════════════════════════════════════════ */
+function renderRecent() {
+  const todayE   = entries.filter(e => isToday(e.date));
+  const earlierE = entries.filter(e => !isToday(e.date));
+  document.getElementById("today-total").textContent = "$"+todayE.reduce((s,e)=>s+parseFloat(e.amount),0).toFixed(2);
+  document.getElementById("entries-today").innerHTML   = todayE.length   ? todayE.map(entryHTML).join("")   : '<p class="empty">No entries yet today.</p>';
+  document.getElementById("earlier-total").textContent = earlierE.length ? "$"+earlierE.reduce((s,e)=>s+parseFloat(e.amount),0).toFixed(2) : "";
+  document.getElementById("entries-earlier").innerHTML = earlierE.length ? earlierE.map(entryHTML).join("") : '<p class="empty">No earlier entries.</p>';
 }
 
 function entryHTML(e) {
-  const badgeClass = e.type === "Caleb" ? "badge-caleb" : e.type === "Tammy" ? "badge-tammy" : "badge-common";
+  const c = e.type==="Caleb"?"caleb":e.type==="Tammy"?"tammy":"common";
   return `<div class="entry">
     <div class="entry-left">
       <span class="entry-cat">${e.category}</span>
@@ -1091,65 +758,89 @@ function entryHTML(e) {
     </div>
     <div class="entry-right">
       <span class="entry-amount">$${parseFloat(e.amount).toFixed(2)}</span>
-      <span class="entry-person-badge ${badgeClass}">${e.type || ""}</span>
+      <span class="entry-badge badge-${c}">${e.type}</span>
     </div>
   </div>`;
 }
 
-/* ── Toast ───────────────────────────────────── */
-function showToast(msg, type = "success") {
+/* ══════════════════════════════════════════════
+   TAB / UI HELPERS
+═══════════════════════════════════════════════ */
+function showTab(t) {
+  ["log","dashboard","recent","setup"].forEach(id => {
+    document.getElementById("tab-"+id).style.display = id===t?"block":"none";
+  });
+  document.querySelectorAll(".tab").forEach((b,i) => {
+    b.classList.toggle("active",["log","dashboard","recent","setup"][i]===t);
+  });
+  if (t==="recent")    renderRecent();
+  if (t==="dashboard") {
+    renderDashboard();
+    // Always re-fetch when opening dashboard so budgets are fresh
+    const wh = localStorage.getItem("exp_webhook");
+    if (wh) fetchAll(wh);
+  }
+}
+
+async function doRefresh() {
+  const wh = localStorage.getItem("exp_webhook");
+  if (!wh) { showToast("Add your Sheets URL in Setup first.","warning"); return; }
+  const icon = document.querySelector("#refresh-btn i");
+  icon.style.animation = "spin 0.8s linear infinite";
+  await fetchAll(wh);
+  renderRecent();
+  icon.style.animation = "";
+}
+
+function hideOverlay() {
+  const o = document.getElementById("loading-overlay");
+  o.classList.add("hidden");
+  setTimeout(()=>o.style.display="none",350);
+}
+
+function showSyncBanner(count) {
+  const b = document.getElementById("sync-banner");
+  document.getElementById("sync-msg").textContent = `Loaded ${count} entr${count!==1?"ies":"y"} from Google Sheets`;
+  b.classList.add("show");
+  setTimeout(()=>b.classList.remove("show"),4000);
+}
+
+function showToast(msg, type="success") {
   const t = document.getElementById("toast");
   t.className = `toast ${type} show`;
   document.getElementById("toast-msg").textContent = msg;
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove("show"), 4000);
+  t._timer = setTimeout(()=>t.classList.remove("show"),4000);
 }
 
-/* ── Setup helpers ───────────────────────────── */
 function updatePendingUI() {
-  const sec = document.getElementById("pending-section");
-  const msg = document.getElementById("pending-msg");
-  if (pendingEntries.length > 0) {
-    sec.style.display = "block";
-    msg.textContent = `${pendingEntries.length} entr${pendingEntries.length>1?"ies":"y"} pending sync`;
-  } else { sec.style.display = "none"; }
+  const s = document.getElementById("pending-section");
+  const m = document.getElementById("pending-msg");
+  if (pendingEntries.length>0) {
+    s.style.display="block";
+    m.textContent=`${pendingEntries.length} entr${pendingEntries.length>1?"ies":"y"} pending sync`;
+  } else s.style.display="none";
 }
 
 function saveWebhook() {
   const v = document.getElementById("webhook-url").value.trim();
   if (v) {
-    const prev = localStorage.getItem("exp_v3_webhook");
-    localStorage.setItem("exp_v3_webhook", v);
+    const prev = localStorage.getItem("exp_webhook");
+    localStorage.setItem("exp_webhook",v);
     updateConnStatus(true);
-    if (v !== prev) {
-      document.getElementById("loading-overlay").style.display = "flex";
-      document.getElementById("loading-overlay").classList.remove("hidden");
-      loadFromSheets(v);
-    }
-  } else {
-    localStorage.removeItem("exp_v3_webhook");
-    updateConnStatus(false);
-  }
+    if (v!==prev) { document.getElementById("loading-overlay").style.cssText="display:flex;opacity:1;"; fetchAll(v); }
+  } else { localStorage.removeItem("exp_webhook"); updateConnStatus(false); }
 }
 
-function updateConnStatus(connected) {
-  document.getElementById("conn-dot").className  = "status-dot" + (connected ? " connected" : "");
-  document.getElementById("conn-label").textContent = connected ? "Connected to Google Sheets" : "Not connected";
-}
-
-async function refreshFromSheets() {
-  const webhook = localStorage.getItem("exp_v3_webhook");
-  if (!webhook) { showToast("Add your Sheets URL in Setup first.", "warning"); return; }
-  const icon = document.querySelector("#refresh-btn i");
-  icon.style.animation = "spin 0.8s linear infinite";
-  await loadFromSheets(webhook);
-  icon.style.animation = "";
+function updateConnStatus(c) {
+  document.getElementById("conn-dot").className="status-dot"+(c?" connected":"");
+  document.getElementById("conn-label").textContent=c?"Connected to Google Sheets":"Not connected";
 }
 
 function copyScript(btn) {
-  navigator.clipboard.writeText(APPS_SCRIPT).then(() => {
-    btn.innerHTML = '<i class="ti ti-check" style="font-size:14px;" aria-hidden="true"></i> Copied!';
-    setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy" style="font-size:14px;" aria-hidden="true"></i> Copy script'; }, 2500);
+  navigator.clipboard.writeText(APPS_SCRIPT).then(()=>{
+    btn.innerHTML='<i class="ti ti-check" style="font-size:14px;"></i> Copied!';
+    setTimeout(()=>{btn.innerHTML='<i class="ti ti-copy" style="font-size:14px;"></i> Copy script';},2500);
   });
 }
 
