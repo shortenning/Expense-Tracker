@@ -522,6 +522,11 @@ function doGet(e) {
     var monthKeyVal = String(e.parameter.monthKey || "");
     var budgetVal   = parseFloat(e.parameter.budget || "0");
     var savedAt     = String(e.parameter.savedAt || new Date().toISOString());
+    // Sanitise: monthKey must match YYYY-MM format, reject anything else
+    if (!monthKeyVal.match(/^\d{4}-\d{2}$/)) {
+      return ContentService.createTextOutput(JSON.stringify({ status: "error", reason: "invalid monthKey: " + monthKeyVal }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     bSheet.appendRow([typeVal, monthKeyVal, budgetVal, savedAt]);
     return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -587,6 +592,8 @@ function doGet(e) {
       var mk = String(bData[i][1]);
       var bv = parseFloat(bData[i][2]);
       var sa = String(bData[i][3] || "");
+      // Skip rows with malformed monthKey (must be YYYY-MM)
+      if (!mk.match(/^\d{4}-\d{2}$/)) continue;
       var bKey = t + "_" + mk;
       if (!latestMap[bKey] || sa > latestMap[bKey].savedAt) {
         latestMap[bKey] = { type: t, monthKey: mk, budget: bv, savedAt: sa };
