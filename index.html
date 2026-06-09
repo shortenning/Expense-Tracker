@@ -638,7 +638,7 @@ let budgetCache = {};
 
 function getBudget(type, year, month) {
   const key = type + "_" + monthKey(year, month);
-  return parseFloat(budgetCache[key] || localStorage.getItem("exp_v3_budget_" + key) || "0");
+  return parseFloat(budgetCache[key] || 0);
 }
 
 function setBudgetCache(type, year, month, val) {
@@ -700,6 +700,12 @@ async function init() {
   const style = document.createElement("style");
   style.textContent = "@keyframes spin { to { transform: rotate(360deg); } }";
   document.head.appendChild(style);
+
+  // Clear any stale budget keys from localStorage (old format may have Date objects as keys)
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith("exp_v3_budget_")) localStorage.removeItem(k);
+  });
+  budgetCache = {};
 
   // If webhook is configured, always clear local cache so Sheets is authoritative
   if (saved) {
@@ -915,6 +921,7 @@ async function loadFromSheets(webhook) {
       throw new Error("Unexpected response");
     }
   } catch(err) {
+    console.error("loadFromSheets error:", err);
     hideOverlay();
     if (entries.length === 0) showSyncBanner(0);
   }
