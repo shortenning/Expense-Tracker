@@ -501,17 +501,15 @@ const APPS_SCRIPT = `function doPost(e) {
     if (bSheet.getLastRow() === 0) {
       bSheet.appendRow(["Type", "MonthKey", "Budget"]);
     }
-    // Find existing row for this person+month and overwrite, or append new
+    // Remove ALL existing rows for this type+month (iterate backwards to avoid index shifting)
     var bData = bSheet.getDataRange().getValues();
-    var found = false;
-    for (var i = 1; i < bData.length; i++) {
-      if (String(bData[i][0]) === data.type && String(bData[i][1]) === data.monthKey) {
-        bSheet.getRange(i + 1, 3).setValue(data.budget);
-        found = true;
-        break;
+    for (var i = bData.length - 1; i >= 1; i--) {
+      if (String(bData[i][0]) === String(data.type) && String(bData[i][1]) === String(data.monthKey)) {
+        bSheet.deleteRow(i + 1);
       }
     }
-    if (!found) bSheet.appendRow([data.type, data.monthKey, data.budget]);
+    // Always append the latest value as a fresh row
+    bSheet.appendRow([data.type, data.monthKey, data.budget]);
     return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
       .setMimeType(ContentService.MimeType.JSON);
   }
@@ -631,11 +629,14 @@ async function loadBudgetsFromSheets(webhook) {
     const res = await fetch(webhook + "?action=getBudgets", { mode: "cors" });
     const data = await res.json();
     if (data.budgets && Array.isArray(data.budgets)) {
+      // Iterate in order so last row wins (handles duplicates — latest value is correct)
       data.budgets.forEach(b => {
         const key = b.type + "_" + b.monthKey;
         budgetCache[key] = b.budget;
         localStorage.setItem("exp_v3_budget_" + key, b.budget);
       });
+      // Re-render dashboard now that budgets are loaded
+      renderDashboard();
     }
   } catch(e) {
     // Fall back to localStorage silently
