@@ -195,18 +195,34 @@
     .pending-section { margin-top: 10px; }
     .pending-count { font-size: 13px; color: var(--warn-text); background: var(--warn-bg); border: 0.5px solid var(--warn-border); padding: 8px 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; }
     .retry-btn { margin-left: auto; font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--warn-border); border-radius: var(--radius-sm); background: transparent; color: var(--warn-text); font-family: var(--font); cursor: pointer; }
+
+    /* Loading overlay */
+    .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 100; transition: opacity 0.3s; }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green-mid); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .loading-text { font-size: 14px; color: var(--text2); }
+    .sync-banner { display: none; align-items: center; gap: 8px; padding: 10px 14px; background: var(--blue-light); border: 0.5px solid var(--blue-border); color: var(--blue); border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 14px; }
+    .sync-banner.show { display: flex; }
   </style>
 </head>
 <body>
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <span class="loading-text">Loading expenses…</span>
+</div>
+
 <div class="app">
   <div class="header">
     <div class="header-icon">
       <i class="ti ti-wallet" style="font-size:20px; color:var(--green);" aria-hidden="true"></i>
     </div>
-    <div>
+    <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
     </div>
+    <button onclick="refreshFromSheets()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" aria-label="Refresh from Sheets" title="Refresh from Sheets">
+      <i class="ti ti-refresh" style="font-size:20px;" aria-hidden="true"></i>
+    </button>
   </div>
 
   <div class="tab-row">
@@ -218,6 +234,11 @@
 
   <!-- LOG TAB -->
   <div id="tab-log">
+    <div id="sync-banner" class="sync-banner">
+      <i class="ti ti-refresh" style="font-size:15px;flex-shrink:0;" aria-hidden="true"></i>
+      <span id="sync-banner-msg">Synced from Google Sheets</span>
+    </div>
+
     <div id="toast" class="toast success" role="alert" aria-live="polite">
       <i class="ti ti-check" style="font-size:16px; flex-shrink:0;" aria-hidden="true"></i>
       <span id="toast-msg"></span>
@@ -474,17 +495,40 @@ const APPS_SCRIPT = `function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Expenses") || ss.insertSheet("Expenses");
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(["Date", "Time", "Person", "Category", "Item", "Amount"]);
+    sheet.appendRow(["Date", "Time", "Type", "Category", "Item", "Amount", "Timestamp"]);
   }
   var data = JSON.parse(e.postData.contents);
-  sheet.appendRow([data.date, data.time, data.person, data.category, data.item, parseFloat(data.amount)]);
+  sheet.appendRow([data.date, data.time, data.person, data.category, data.item, parseFloat(data.amount), data.ts]);
   var output = ContentService.createTextOutput(JSON.stringify({ status: "ok" }));
   output.setMimeType(ContentService.MimeType.JSON);
   return output;
 }
 
-function doGet() {
-  return ContentService.createTextOutput("Expense Tracker connected.");
+function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Expenses");
+  if (!sheet || sheet.getLastRow() < 2) {
+    return ContentService.createTextOutput(JSON.stringify({ rows: [] }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var rows = [];
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    rows.push({
+      date:     row[0],
+      time:     row[1],
+      person:   row[2],
+      category: row[3],
+      item:     row[4],
+      amount:   row[5],
+      ts:       row[6]
+    });
+  }
+  rows.reverse();
+  return ContentService.createTextOutput(JSON.stringify({ rows: rows }))
+    .setMimeType(ContentService.MimeType.JSON);
 }`;
 
 const CATEGORIES = [
@@ -528,7 +572,7 @@ function setBudgetStore(person, year, month, val) {
 }
 
 /* ── Init ────────────────────────────────────── */
-function init() {
+async function init() {
   loadStorage();
   const now = new Date();
   document.getElementById("current-date").textContent = now.toLocaleDateString("en-SG", {
@@ -544,11 +588,11 @@ function init() {
     grid.appendChild(btn);
   });
   document.getElementById("script-display").textContent = APPS_SCRIPT;
+
   const saved = localStorage.getItem("exp_v3_webhook");
   if (saved) { document.getElementById("webhook-url").value = saved; updateConnStatus(true); }
   else { updateConnStatus(false); }
 
-  // pre-fill budget inputs with current month's budget
   ["Caleb","Tammy","Common"].forEach(p => {
     const b = getBudget(p, dashYear, dashMonth);
     if (b) document.getElementById(p.toLowerCase() + "-budget-input").value = b;
@@ -558,6 +602,13 @@ function init() {
   const style = document.createElement("style");
   style.textContent = "@keyframes spin { to { transform: rotate(360deg); } }";
   document.head.appendChild(style);
+
+  // Load from Sheets if webhook configured, else use local cache and hide overlay
+  if (saved) {
+    await loadFromSheets(saved);
+  } else {
+    hideOverlay();
+  }
 }
 
 /* ── Person & Category selectors ─────────────── */
@@ -641,6 +692,52 @@ async function submitExpense() {
 }
 
 /* ── Sheets sync ─────────────────────────────── */
+function hideOverlay() {
+  const o = document.getElementById("loading-overlay");
+  o.classList.add("hidden");
+  setTimeout(() => o.style.display = "none", 350);
+}
+
+function showSyncBanner(count) {
+  const b = document.getElementById("sync-banner");
+  document.getElementById("sync-banner-msg").textContent =
+    count > 0 ? `Loaded ${count} entries from Google Sheets` : "No entries found in Google Sheets";
+  b.classList.add("show");
+  setTimeout(() => b.classList.remove("show"), 4000);
+}
+
+async function loadFromSheets(webhook) {
+  try {
+    const res = await fetch(webhook + "?action=get", { mode: "cors" });
+    const data = await res.json();
+    if (data.rows && Array.isArray(data.rows)) {
+      // Normalise rows — Sheets may return numbers for amount
+      entries = data.rows.map(r => ({
+        date:     String(r.date || ""),
+        time:     String(r.time || ""),
+        person:   String(r.person || ""),
+        category: String(r.category || ""),
+        item:     String(r.item || ""),
+        amount:   String(parseFloat(r.amount) || 0),
+        ts:       r.ts || new Date().toISOString()
+      })).filter(r => r.date);
+      saveEntries();
+      // Retry any pending entries now that we're online
+      if (pendingEntries.length > 0) await retryPending(true);
+      hideOverlay();
+      showSyncBanner(entries.length);
+    } else {
+      throw new Error("Unexpected response");
+    }
+  } catch(err) {
+    // Fall back to local cache silently
+    hideOverlay();
+    if (entries.length === 0) {
+      showSyncBanner(0);
+    }
+  }
+}
+
 async function sendToSheets(entry, webhook) {
   try {
     await fetch(webhook, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(entry), mode:"no-cors" });
@@ -648,15 +745,17 @@ async function sendToSheets(entry, webhook) {
   } catch(e) { return false; }
 }
 
-async function retryPending() {
+async function retryPending(silent = false) {
   const webhook = localStorage.getItem("exp_v3_webhook");
   if (!webhook || !pendingEntries.length) return;
-  document.querySelector(".retry-btn").textContent = "Syncing…";
+  if (!silent) document.querySelector(".retry-btn").textContent = "Syncing…";
   let synced = 0; const remaining = [];
   for (const e of pendingEntries) { if (await sendToSheets(e, webhook)) synced++; else remaining.push(e); }
   pendingEntries = remaining; savePending(); updatePendingUI();
-  if (synced > 0) showToast(`Synced ${synced} entr${synced>1?"ies":"y"} to Sheets ✓`, "success");
-  else showToast("Sync failed — check your URL in Setup.", "danger");
+  if (!silent) {
+    if (synced > 0) showToast(`Synced ${synced} entr${synced>1?"ies":"y"} to Sheets ✓`, "success");
+    else showToast("Sync failed — check your URL in Setup.", "danger");
+  }
 }
 
 /* ── Dashboard ───────────────────────────────── */
@@ -794,13 +893,33 @@ function updatePendingUI() {
 
 function saveWebhook() {
   const v = document.getElementById("webhook-url").value.trim();
-  if (v) { localStorage.setItem("exp_v3_webhook", v); updateConnStatus(true); }
-  else   { localStorage.removeItem("exp_v3_webhook"); updateConnStatus(false); }
+  if (v) {
+    const prev = localStorage.getItem("exp_v3_webhook");
+    localStorage.setItem("exp_v3_webhook", v);
+    updateConnStatus(true);
+    if (v !== prev) {
+      document.getElementById("loading-overlay").style.display = "flex";
+      document.getElementById("loading-overlay").classList.remove("hidden");
+      loadFromSheets(v);
+    }
+  } else {
+    localStorage.removeItem("exp_v3_webhook");
+    updateConnStatus(false);
+  }
 }
 
 function updateConnStatus(connected) {
   document.getElementById("conn-dot").className  = "status-dot" + (connected ? " connected" : "");
   document.getElementById("conn-label").textContent = connected ? "Connected to Google Sheets" : "Not connected";
+}
+
+async function refreshFromSheets() {
+  const webhook = localStorage.getItem("exp_v3_webhook");
+  if (!webhook) { showToast("Add your Sheets URL in Setup first.", "warning"); return; }
+  const icon = document.querySelector("[aria-label='Refresh from Sheets'] i");
+  icon.style.animation = "spin 0.8s linear infinite";
+  await loadFromSheets(webhook);
+  icon.style.animation = "";
 }
 
 function copyScript(btn) {
