@@ -552,32 +552,50 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // ── Return expenses (default) ────────────────────────────────────
+  // ── Return expenses + budgets together (default) ─────────────────
   var sheet = ss.getSheetByName("Expenses");
-  if (!sheet || sheet.getLastRow() < 2) {
-    return ContentService.createTextOutput(JSON.stringify({ rows: [] }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  var displayValues = sheet.getDataRange().getDisplayValues();
-  var rawValues = sheet.getDataRange().getValues();
-  var tz = Session.getScriptTimeZone();
   var rows = [];
-  for (var i = 1; i < displayValues.length; i++) {
-    var disp = displayValues[i];
-    var raw  = rawValues[i];
-    if (!disp[0] && !disp[2]) continue;
-    var dateStr = String(disp[0] || "").trim();
-    if (dateStr && !dateStr.includes("/") && raw[0] instanceof Date) {
-      dateStr = Utilities.formatDate(raw[0], tz, "dd/MM/yyyy");
+  if (sheet && sheet.getLastRow() >= 2) {
+    var displayValues = sheet.getDataRange().getDisplayValues();
+    var rawValues = sheet.getDataRange().getValues();
+    var tz = Session.getScriptTimeZone();
+    for (var i = 1; i < displayValues.length; i++) {
+      var disp = displayValues[i];
+      var raw  = rawValues[i];
+      if (!disp[0] && !disp[2]) continue;
+      var dateStr = String(disp[0] || "").trim();
+      if (dateStr && !dateStr.includes("/") && raw[0] instanceof Date) {
+        dateStr = Utilities.formatDate(raw[0], tz, "dd/MM/yyyy");
+      }
+      var timeStr = String(disp[1] || "").trim();
+      if (!timeStr && raw[1] instanceof Date) {
+        timeStr = Utilities.formatDate(raw[1], tz, "HH:mm");
+      }
+      rows.push({ date: dateStr, time: timeStr, type: String(disp[2]||""), category: String(disp[3]||""), item: String(disp[4]||""), amount: raw[5], ts: String(raw[6]||"") });
     }
-    var timeStr = String(disp[1] || "").trim();
-    if (!timeStr && raw[1] instanceof Date) {
-      timeStr = Utilities.formatDate(raw[1], tz, "HH:mm");
-    }
-    rows.push({ date: dateStr, time: timeStr, type: String(disp[2]||""), category: String(disp[3]||""), item: String(disp[4]||""), amount: raw[5], ts: String(raw[6]||"") });
+    rows.reverse();
   }
-  rows.reverse();
-  return ContentService.createTextOutput(JSON.stringify({ rows: rows }))
+
+  // Also return latest budgets in the same response
+  var budgets = [];
+  var bSheet = ss.getSheetByName("Budgets");
+  if (bSheet && bSheet.getLastRow() >= 2) {
+    var bData = bSheet.getDataRange().getValues();
+    var latestMap = {};
+    for (var i = 1; i < bData.length; i++) {
+      var t  = String(bData[i][0]);
+      var mk = String(bData[i][1]);
+      var bv = parseFloat(bData[i][2]);
+      var sa = String(bData[i][3] || "");
+      var bKey = t + "_" + mk;
+      if (!latestMap[bKey] || sa > latestMap[bKey].savedAt) {
+        latestMap[bKey] = { type: t, monthKey: mk, budget: bv, savedAt: sa };
+      }
+    }
+    budgets = Object.values(latestMap);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ rows: rows, budgets: budgets }))
     .setMimeType(ContentService.MimeType.JSON);
 }`;
 
@@ -687,7 +705,6 @@ async function init() {
   if (saved) {
     localStorage.removeItem("exp_v3_entries");
     entries = [];
-    await loadBudgetsFromSheets(saved);
     await loadFromSheets(saved);
   } else {
     hideOverlay();
@@ -725,9 +742,9 @@ function showTab(t) {
   if (t === "recent") renderRecent();
   if (t === "dashboard") {
     renderDashboard();
-    // Also async-refresh budgets from Sheets whenever dashboard tab is opened
+    // Async-refresh from Sheets whenever dashboard tab is opened
     const webhook = localStorage.getItem("exp_v3_webhook");
-    if (webhook) loadBudgetsFromSheets(webhook);
+    if (webhook) loadFromSheets(webhook);
   }
 }
 
@@ -803,7 +820,7 @@ function showSyncBanner(count) {
 
 async function loadFromSheets(webhook) {
   try {
-    const res = await fetch(webhook + "?action=get", { mode: "cors" });
+    const res = await fetch(webhook + "?action=getExpenses", { mode: "cors" });
     const data = await res.json();
     if (data.rows && Array.isArray(data.rows)) {
       entries = data.rows.map(r => {
@@ -872,6 +889,17 @@ async function loadFromSheets(webhook) {
         };
       }).filter(r => r.date);
       saveEntries();
+
+      // Process budgets from the same response
+      if (data.budgets && Array.isArray(data.budgets)) {
+        data.budgets.forEach(b => {
+          const key = b.type + "_" + b.monthKey;
+          budgetCache[key] = b.budget;
+          localStorage.setItem("exp_v3_budget_" + key, b.budget);
+        });
+      }
+      renderDashboard();
+
       if (pendingEntries.length > 0) await retryPending(true);
       hideOverlay();
       showSyncBanner(entries.length);
@@ -1093,8 +1121,6 @@ async function refreshFromSheets() {
   const icon = document.querySelector("#refresh-btn i");
   icon.style.animation = "spin 0.8s linear infinite";
   await loadFromSheets(webhook);
-  await loadBudgetsFromSheets(webhook);
-  renderDashboard();
   icon.style.animation = "";
 }
 
