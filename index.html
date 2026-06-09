@@ -495,25 +495,6 @@ const APPS_SCRIPT = `function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var data = JSON.parse(e.postData.contents);
 
-  // ── Budget save ──────────────────────────────────────────────────
-  if (data.action === "saveBudget") {
-    var bSheet = ss.getSheetByName("Budgets") || ss.insertSheet("Budgets");
-    if (bSheet.getLastRow() === 0) {
-      bSheet.appendRow(["Type", "MonthKey", "Budget"]);
-    }
-    // Remove ALL existing rows for this type+month (iterate backwards to avoid index shifting)
-    var bData = bSheet.getDataRange().getValues();
-    for (var i = bData.length - 1; i >= 1; i--) {
-      if (String(bData[i][0]) === String(data.type) && String(bData[i][1]) === String(data.monthKey)) {
-        bSheet.deleteRow(i + 1);
-      }
-    }
-    // Always append the latest value as a fresh row
-    bSheet.appendRow([data.type, data.monthKey, data.budget]);
-    return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
   // ── Expense save ─────────────────────────────────────────────────
   var sheet = ss.getSheetByName("Expenses") || ss.insertSheet("Expenses");
   if (sheet.getLastRow() === 0) {
@@ -529,30 +510,24 @@ const APPS_SCRIPT = `function doPost(e) {
 
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var action = e && e.parameter && e.parameter.action ? e.parameter.action : "get";
+  var action = e && e.parameter && e.parameter.action ? e.parameter.action : "getExpenses";
 
-  // ── Save budget via GET params ───────────────────────────────────
+  // ── Save budget via GET params (append-only with saved_at timestamp) ──
   if (action === "saveBudget") {
     var bSheet = ss.getSheetByName("Budgets") || ss.insertSheet("Budgets");
     if (bSheet.getLastRow() === 0) {
-      bSheet.appendRow(["Type", "MonthKey", "Budget"]);
+      bSheet.appendRow(["Type", "MonthKey", "Budget", "SavedAt"]);
     }
     var typeVal     = String(e.parameter.type || "");
     var monthKeyVal = String(e.parameter.monthKey || "");
     var budgetVal   = parseFloat(e.parameter.budget || "0");
-    // Delete all existing rows for this type+month (iterate backwards)
-    var bData = bSheet.getDataRange().getValues();
-    for (var i = bData.length - 1; i >= 1; i--) {
-      if (String(bData[i][0]) === typeVal && String(bData[i][1]) === monthKeyVal) {
-        bSheet.deleteRow(i + 1);
-      }
-    }
-    bSheet.appendRow([typeVal, monthKeyVal, budgetVal]);
+    var savedAt     = String(e.parameter.savedAt || new Date().toISOString());
+    bSheet.appendRow([typeVal, monthKeyVal, budgetVal, savedAt]);
     return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // ── Return budgets ───────────────────────────────────────────────
+  // ── Return budgets — latest per type+month wins ───────────────────
   if (action === "getBudgets") {
     var bSheet = ss.getSheetByName("Budgets");
     if (!bSheet || bSheet.getLastRow() < 2) {
@@ -560,10 +535,19 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     var bData = bSheet.getDataRange().getValues();
-    var budgets = [];
+    // Build a map: "Type_MonthKey" -> latest {budget, savedAt}
+    var latestMap = {};
     for (var i = 1; i < bData.length; i++) {
-      budgets.push({ type: String(bData[i][0]), monthKey: String(bData[i][1]), budget: parseFloat(bData[i][2]) });
+      var t  = String(bData[i][0]);
+      var mk = String(bData[i][1]);
+      var bv = parseFloat(bData[i][2]);
+      var sa = String(bData[i][3] || "");
+      var key = t + "_" + mk;
+      if (!latestMap[key] || sa > latestMap[key].savedAt) {
+        latestMap[key] = { type: t, monthKey: mk, budget: bv, savedAt: sa };
+      }
     }
+    var budgets = Object.values(latestMap);
     return ContentService.createTextOutput(JSON.stringify({ budgets: budgets }))
       .setMimeType(ContentService.MimeType.JSON);
   }
@@ -739,7 +723,12 @@ function showTab(t) {
     btn.classList.toggle("active", ["log","dashboard","recent","setup"][i] === t);
   });
   if (t === "recent") renderRecent();
-  if (t === "dashboard") renderDashboard();
+  if (t === "dashboard") {
+    renderDashboard();
+    // Also async-refresh budgets from Sheets whenever dashboard tab is opened
+    const webhook = localStorage.getItem("exp_v3_webhook");
+    if (webhook) loadBudgetsFromSheets(webhook);
+  }
 }
 
 /* ── Submit ──────────────────────────────────── */
@@ -1011,7 +1000,8 @@ async function saveBudget(type) {
         action: "saveBudget",
         type: type,
         monthKey: monthKey(dashYear, dashMonth),
-        budget: val
+        budget: val,
+        savedAt: new Date().toISOString()
       });
       await fetch(webhook + "?" + params.toString(), { mode: "no-cors" });
     } catch(e) { /* fail silently, local cache already saved */ }
