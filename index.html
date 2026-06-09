@@ -583,9 +583,12 @@ function setBudgetStore(person, year, month, val) {
 async function init() {
   loadStorage();
   const now = new Date();
-  document.getElementById("current-date").textContent = now.toLocaleDateString("en-SG", {
-    weekday: "short", day: "numeric", month: "short", year: "numeric"
-  });
+  const sgtNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("current-date").textContent =
+    days[sgtNow.getUTCDay()] + ", " + sgtNow.getUTCDate() + " " +
+    months[sgtNow.getUTCMonth()] + " " + sgtNow.getUTCFullYear();
   const grid = document.getElementById("cat-grid");
   CATEGORIES.forEach(c => {
     const btn = document.createElement("button");
@@ -611,8 +614,10 @@ async function init() {
   style.textContent = "@keyframes spin { to { transform: rotate(360deg); } }";
   document.head.appendChild(style);
 
-  // Load from Sheets if webhook configured, else use local cache and hide overlay
+  // If webhook is configured, always clear local cache so Sheets is authoritative
   if (saved) {
+    localStorage.removeItem("exp_v3_entries");
+    entries = [];
     await loadFromSheets(saved);
   } else {
     hideOverlay();
@@ -660,9 +665,16 @@ async function submitExpense() {
   if (!selectedCat)           { showToast("Please select a category.", "danger"); return; }
 
   const now = new Date();
+  const sgtOffset = 8 * 60;
+  const sgt = new Date(now.getTime() + sgtOffset * 60 * 1000);
+  const dd   = String(sgt.getUTCDate()).padStart(2, "0");
+  const mm   = String(sgt.getUTCMonth() + 1).padStart(2, "0");
+  const yyyy = sgt.getUTCFullYear();
+  const hh   = String(sgt.getUTCHours()).padStart(2, "0");
+  const min  = String(sgt.getUTCMinutes()).padStart(2, "0");
   const entry = {
-    date:     now.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" }),
-    time:     now.toLocaleTimeString("en-SG",  { hour:"2-digit", minute:"2-digit" }),
+    date:     `${dd}/${mm}/${yyyy}`,
+    time:     `${hh}:${min}`,
     person:   selectedPerson,
     category: selectedCat,
     item:     item || "-",
@@ -726,11 +738,19 @@ async function loadFromSheets(webhook) {
         let dateStr = String(r.date || "");
         let timeStr = String(r.time || "");
 
-        // If ts is a valid ISO string, always use it as the source of truth for date/time
+        // Convert ISO ts to SGT (UTC+8) and format as dd/mm/yyyy and HH:mm
         const tsDate = ts ? new Date(ts) : null;
         if (tsDate && !isNaN(tsDate) && tsDate.getFullYear() > 1970) {
-          dateStr = tsDate.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
-          timeStr = tsDate.toLocaleTimeString("en-SG", { hour:"2-digit", minute:"2-digit" });
+          // Manually apply SGT offset (UTC+8) to avoid locale/timezone inconsistencies
+          const sgtOffset = 8 * 60; // minutes
+          const sgtDate = new Date(tsDate.getTime() + sgtOffset * 60 * 1000);
+          const dd   = String(sgtDate.getUTCDate()).padStart(2, "0");
+          const mm   = String(sgtDate.getUTCMonth() + 1).padStart(2, "0");
+          const yyyy = sgtDate.getUTCFullYear();
+          const hh   = String(sgtDate.getUTCHours()).padStart(2, "0");
+          const min  = String(sgtDate.getUTCMinutes()).padStart(2, "0");
+          dateStr = `${dd}/${mm}/${yyyy}`;
+          timeStr = `${hh}:${min}`;
         } else {
           // ts missing or invalid — try to salvage date/time from the raw columns
           if (dateStr.includes("T")) {
@@ -812,10 +832,15 @@ function renderDashboard() {
   // Update month label
   document.getElementById("dash-month-label").textContent = MONTH_NAMES[dashMonth] + " " + dashYear;
 
-  // Filter entries to the displayed month
+  // Filter entries by parsing the date string directly (dd/mm/yyyy) — avoids ts timezone issues
   const monthEntries = entries.filter(e => {
-    const d = new Date(e.ts);
-    return d.getMonth() === dashMonth && d.getFullYear() === dashYear;
+    const parts = e.date ? e.date.split("/") : [];
+    if (parts.length !== 3) return false;
+    const entryMonth = parseInt(parts[1], 10) - 1; // 0-indexed
+    const entryYear  = parseInt(parts[2], 10);
+    // Handle 2-digit years from Sheets (e.g. "26" → 2026)
+    const fullYear = entryYear < 100 ? 2000 + entryYear : entryYear;
+    return entryMonth === dashMonth && fullYear === dashYear;
   });
 
   ["Caleb","Tammy","Common"].forEach(person => {
@@ -884,9 +909,17 @@ function saveBudget(person) {
 
 /* ── Recent ──────────────────────────────────── */
 function renderRecent() {
-  const todayStr = new Date().toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
-  const todayEntries   = entries.filter(e => e.date === todayStr);
-  const earlierEntries = entries.filter(e => e.date !== todayStr);
+  const now = new Date();
+  const sgt = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+  const dd   = String(sgt.getUTCDate()).padStart(2,"0");
+  const mm   = String(sgt.getUTCMonth()+1).padStart(2,"0");
+  const yyyy = sgt.getUTCFullYear();
+  const yy   = String(yyyy).slice(2);
+  // Match both dd/mm/yyyy (app-logged) and dd/mm/yy (Sheets-formatted)
+  const isToday = d => d === `${dd}/${mm}/${yyyy}` || d === `${dd}/${mm}/${yy}`;
+
+  const todayEntries   = entries.filter(e => isToday(e.date));
+  const earlierEntries = entries.filter(e => !isToday(e.date));
   const todayTotal = todayEntries.reduce((s,e) => s + parseFloat(e.amount), 0);
   document.getElementById("today-total").textContent = "$" + todayTotal.toFixed(2);
   document.getElementById("entries-today").innerHTML = todayEntries.length
