@@ -17,6 +17,7 @@
       --green: #3B6D11; --green-mid: #639922; --green-light: #EAF3DE; --green-border: #97C459;
       --blue: #1A4A8A; --blue-mid: #2F6FCC; --blue-light: #E0ECFF; --blue-border: #7FB3F5;
       --purple: #5B2D91; --purple-mid: #8B47D9; --purple-light: #F0E8FF; --purple-border: #C09AF0;
+      --teal: #0E5A5A; --teal-mid: #1A8C8C; --teal-light: #E0F5F5; --teal-border: #5ECECE;
       --bg: #F7F7F5; --surface: #FFFFFF; --surface2: #F1F0EB;
       --text: #1A1A18; --text2: #6B6B67; --text3: #A8A8A4;
       --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
@@ -33,6 +34,7 @@
         --green-light: #1A2A0A; --green-border: #3B6D11;
         --blue-light: #0A1A2A; --blue-border: #2F6FCC;
         --purple-light: #1A0A2A; --purple-border: #5B2D91;
+        --teal-light: #0A2020; --teal-border: #1A8C8C;
         --warn-bg: #2A1E08; --warn-border: #854F0B; --warn-text: #FAC775;
         --danger-bg: #2A0A0A; --danger-border: #A32D2D; --danger-text: #F7C1C1;
       }
@@ -72,17 +74,18 @@
     .field input[type="text"] { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: var(--font); background: var(--surface2); color: var(--text); transition: border-color 0.15s; }
     .field input[type="text"]:focus { outline: none; border-color: var(--border2); }
 
-    /* Person selector */
-    .person-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    /* Type selector */
+    .person-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .person-btn {
-      padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-sm);
-      font-size: 14px; font-family: var(--font); background: var(--surface2); color: var(--text2);
+      padding: 10px 8px; border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 13px; font-family: var(--font); background: var(--surface2); color: var(--text2);
       cursor: pointer; text-align: center; transition: all 0.15s; font-weight: 500;
-      display: flex; align-items: center; justify-content: center; gap: 7px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     .person-btn:active { transform: scale(0.97); }
-    .person-btn.selected-caleb { background: var(--blue-light); border-color: var(--blue-border); color: var(--blue); }
-    .person-btn.selected-tammy { background: var(--purple-light); border-color: var(--purple-border); color: var(--purple); }
+    .person-btn.selected-caleb  { background: var(--blue-light);   border-color: var(--blue-border);   color: var(--blue); }
+    .person-btn.selected-tammy  { background: var(--purple-light); border-color: var(--purple-border); color: var(--purple); }
+    .person-btn.selected-common { background: var(--teal-light);   border-color: var(--teal-border);   color: var(--teal); }
 
     /* Category grid */
     .cat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
@@ -134,15 +137,17 @@
     .person-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .person-label { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
     .person-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
-    .avatar-caleb { background: var(--blue-mid); }
-    .avatar-tammy { background: var(--purple-mid); }
+    .avatar-caleb  { background: var(--blue-mid); }
+    .avatar-tammy  { background: var(--purple-mid); }
+    .avatar-common { background: var(--teal-mid); }
 
     .budget-bar-wrap { margin-bottom: 10px; }
     .budget-bar-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin: 6px 0; }
     .budget-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
-    .bar-caleb { background: var(--blue-mid); }
-    .bar-tammy { background: var(--purple-mid); }
-    .bar-over { background: var(--danger-border); }
+    .bar-caleb  { background: var(--blue-mid); }
+    .bar-tammy  { background: var(--purple-mid); }
+    .bar-common { background: var(--teal-mid); }
+    .bar-over   { background: var(--danger-border); }
     .budget-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); }
 
     .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -170,8 +175,9 @@
     .entry-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
     .entry-amount { font-size: 15px; font-weight: 600; }
     .entry-person-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
-    .badge-caleb { background: var(--blue-light); color: var(--blue); }
-    .badge-tammy { background: var(--purple-light); color: var(--purple); }
+    .badge-caleb  { background: var(--blue-light);   color: var(--blue); }
+    .badge-tammy  { background: var(--purple-light); color: var(--purple); }
+    .badge-common { background: var(--teal-light);   color: var(--teal); }
     .empty { font-size: 14px; color: var(--text3); text-align: center; padding: 20px 0; }
 
     /* Setup */
@@ -225,13 +231,16 @@
       <div class="divider"></div>
 
       <div class="field" style="margin-bottom:14px;">
-        <label>Person</label>
-        <div class="person-row" id="person-row" role="group" aria-label="Select person">
-          <button class="person-btn" id="btn-caleb" onclick="selectPerson('Caleb')" aria-pressed="false">
+        <label>Type</label>
+        <div class="person-row" id="person-row" role="group" aria-label="Select type">
+          <button class="person-btn" id="btn-caleb"  onclick="selectPerson('Caleb')"  aria-pressed="false">
             <i class="ti ti-user" aria-hidden="true"></i> Caleb
           </button>
-          <button class="person-btn" id="btn-tammy" onclick="selectPerson('Tammy')" aria-pressed="false">
+          <button class="person-btn" id="btn-tammy"  onclick="selectPerson('Tammy')"  aria-pressed="false">
             <i class="ti ti-user" aria-hidden="true"></i> Tammy
+          </button>
+          <button class="person-btn" id="btn-common" onclick="selectPerson('Common')" aria-pressed="false">
+            <i class="ti ti-users" aria-hidden="true"></i> Common
           </button>
         </div>
       </div>
@@ -351,10 +360,49 @@
       </div>
     </div>
 
+    <!-- Common card -->
+    <div class="person-card">
+      <div class="person-card-header">
+        <div class="person-label">
+          <div class="person-avatar avatar-common">C</div>
+          Common
+        </div>
+        <span class="over-badge" id="common-over-badge" style="display:none;">Over budget</span>
+      </div>
+      <div class="remaining-block" id="common-remaining-block">
+        <div class="remaining-label" id="common-remaining-label">Remaining</div>
+        <div class="remaining-amount" id="common-remaining-amount">—</div>
+      </div>
+      <div class="stat-row" style="margin-bottom:12px;">
+        <div class="stat-box">
+          <div class="stat-label">Spent</div>
+          <div class="stat-val" id="common-spent">$0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Monthly budget</div>
+          <div class="stat-val" id="common-budget-val">—</div>
+        </div>
+      </div>
+      <div class="budget-bar-wrap">
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill bar-common" id="common-bar" style="width:0%"></div>
+        </div>
+        <div class="budget-labels">
+          <span id="common-bar-pct">—</span>
+          <span id="common-bar-label">of monthly budget</span>
+        </div>
+      </div>
+      <div class="budget-edit-row">
+        <label for="common-budget-input">Set monthly budget $</label>
+        <input class="budget-input" id="common-budget-input" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 2000" />
+        <button class="budget-save-btn" onclick="saveBudget('Common')">Save</button>
+      </div>
+    </div>
+
     <!-- Combined total -->
     <div class="card">
       <div class="section-header" style="margin-bottom:0;">
-        <h2>Combined this month</h2>
+        <h2>All combined this month</h2>
         <span class="total-badge" id="combined-total">$0.00</span>
       </div>
     </div>
@@ -501,7 +549,7 @@ function init() {
   else { updateConnStatus(false); }
 
   // pre-fill budget inputs with current month's budget
-  ["Caleb","Tammy"].forEach(p => {
+  ["Caleb","Tammy","Common"].forEach(p => {
     const b = getBudget(p, dashYear, dashMonth);
     if (b) document.getElementById(p.toLowerCase() + "-budget-input").value = b;
   });
@@ -515,7 +563,7 @@ function init() {
 /* ── Person & Category selectors ─────────────── */
 function selectPerson(name) {
   selectedPerson = name;
-  ["Caleb","Tammy"].forEach(p => {
+  ["Caleb","Tammy","Common"].forEach(p => {
     const btn = document.getElementById("btn-" + p.toLowerCase());
     btn.className = "person-btn";
     btn.setAttribute("aria-pressed", "false");
@@ -587,7 +635,7 @@ async function submitExpense() {
   document.getElementById("item").value   = "";
   selectedCat = ""; selectedPerson = "";
   document.querySelectorAll(".cat-btn").forEach(b => { b.classList.remove("selected"); b.setAttribute("aria-pressed","false"); });
-  ["Caleb","Tammy"].forEach(p => { document.getElementById("btn-"+p.toLowerCase()).className = "person-btn"; });
+  ["Caleb","Tammy","Common"].forEach(p => { document.getElementById("btn-"+p.toLowerCase()).className = "person-btn"; });
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-plus" style="font-size:18px;" aria-hidden="true"></i> Log expense';
 }
@@ -631,7 +679,7 @@ function renderDashboard() {
     return d.getMonth() === dashMonth && d.getFullYear() === dashYear;
   });
 
-  ["Caleb","Tammy"].forEach(person => {
+  ["Caleb","Tammy","Common"].forEach(person => {
     const pEntries = monthEntries.filter(e => e.person === person);
     const spent = pEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
     const budget = getBudget(person, dashYear, dashMonth);
@@ -711,7 +759,7 @@ function renderRecent() {
 }
 
 function entryHTML(e) {
-  const badgeClass = e.person === "Caleb" ? "badge-caleb" : "badge-tammy";
+  const badgeClass = e.person === "Caleb" ? "badge-caleb" : e.person === "Tammy" ? "badge-tammy" : "badge-common";
   return `<div class="entry">
     <div class="entry-left">
       <span class="entry-cat">${e.category}</span>
