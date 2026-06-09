@@ -220,7 +220,7 @@
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
     </div>
-    <button onclick="refreshFromSheets()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" aria-label="Refresh from Sheets" title="Refresh from Sheets">
+    <button id="refresh-btn" onclick="refreshFromSheets()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" aria-label="Refresh from Sheets" title="Refresh from Sheets">
       <i class="ti ti-refresh" style="font-size:20px;" aria-hidden="true"></i>
     </button>
   </div>
@@ -493,63 +493,85 @@
 <script>
 const APPS_SCRIPT = `function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var data = JSON.parse(e.postData.contents);
+
+  // ── Budget save ──────────────────────────────────────────────────
+  if (data.action === "saveBudget") {
+    var bSheet = ss.getSheetByName("Budgets") || ss.insertSheet("Budgets");
+    if (bSheet.getLastRow() === 0) {
+      bSheet.appendRow(["Type", "MonthKey", "Budget"]);
+    }
+    // Find existing row for this person+month and overwrite, or append new
+    var bData = bSheet.getDataRange().getValues();
+    var found = false;
+    for (var i = 1; i < bData.length; i++) {
+      if (String(bData[i][0]) === data.type && String(bData[i][1]) === data.monthKey) {
+        bSheet.getRange(i + 1, 3).setValue(data.budget);
+        found = true;
+        break;
+      }
+    }
+    if (!found) bSheet.appendRow([data.type, data.monthKey, data.budget]);
+    return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // ── Expense save ─────────────────────────────────────────────────
   var sheet = ss.getSheetByName("Expenses") || ss.insertSheet("Expenses");
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(["Date", "Time", "Type", "Category", "Item", "Amount", "Timestamp"]);
   }
-  var data = JSON.parse(e.postData.contents);
-  // Write date and time as plain text strings to prevent Sheets from reformatting them
   var row = sheet.getRange(sheet.getLastRow() + 1, 1, 1, 7);
-  row.setValues([[data.date, data.time, data.person, data.category, data.item, parseFloat(data.amount), data.ts]]);
-  row.getCell(1,1).setNumberFormat("@"); // Date as plain text
-  row.getCell(1,2).setNumberFormat("@"); // Time as plain text
-  var output = ContentService.createTextOutput(JSON.stringify({ status: "ok" }));
-  output.setMimeType(ContentService.MimeType.JSON);
-  return output;
+  row.setValues([[data.date, data.time, data.type, data.category, data.item, parseFloat(data.amount), data.ts]]);
+  row.getCell(1,1).setNumberFormat("@");
+  row.getCell(1,2).setNumberFormat("@");
+  return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var action = e && e.parameter && e.parameter.action ? e.parameter.action : "get";
+
+  // ── Return budgets ───────────────────────────────────────────────
+  if (action === "getBudgets") {
+    var bSheet = ss.getSheetByName("Budgets");
+    if (!bSheet || bSheet.getLastRow() < 2) {
+      return ContentService.createTextOutput(JSON.stringify({ budgets: [] }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    var bData = bSheet.getDataRange().getValues();
+    var budgets = [];
+    for (var i = 1; i < bData.length; i++) {
+      budgets.push({ type: String(bData[i][0]), monthKey: String(bData[i][1]), budget: parseFloat(bData[i][2]) });
+    }
+    return ContentService.createTextOutput(JSON.stringify({ budgets: budgets }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // ── Return expenses (default) ────────────────────────────────────
   var sheet = ss.getSheetByName("Expenses");
   if (!sheet || sheet.getLastRow() < 2) {
     return ContentService.createTextOutput(JSON.stringify({ rows: [] }))
       .setMimeType(ContentService.MimeType.JSON);
   }
-
-  // Get raw display values (what you actually see in the cell) — not computed Date objects
   var displayValues = sheet.getDataRange().getDisplayValues();
   var rawValues = sheet.getDataRange().getValues();
   var tz = Session.getScriptTimeZone();
   var rows = [];
-
   for (var i = 1; i < displayValues.length; i++) {
     var disp = displayValues[i];
     var raw  = rawValues[i];
-    if (!disp[0] && !disp[2]) continue; // skip empty rows
-
-    // Date: prefer display value (already formatted as text in the cell)
+    if (!disp[0] && !disp[2]) continue;
     var dateStr = String(disp[0] || "").trim();
-    // Normalise from Sheets display formats like "9/6/2026" or "09/06/26"
     if (dateStr && !dateStr.includes("/") && raw[0] instanceof Date) {
       dateStr = Utilities.formatDate(raw[0], tz, "dd/MM/yyyy");
     }
-
-    // Time: prefer display value (e.g. "11:31 AM", "22:21", "16:10")
     var timeStr = String(disp[1] || "").trim();
-    // If it came back as a Date object, format as 24h
     if (!timeStr && raw[1] instanceof Date) {
       timeStr = Utilities.formatDate(raw[1], tz, "HH:mm");
     }
-
-    rows.push({
-      date:     dateStr,
-      time:     timeStr,
-      person:   String(disp[2] || ""),
-      category: String(disp[3] || ""),
-      item:     String(disp[4] || ""),
-      amount:   raw[5],
-      ts:       String(raw[6] || "")
-    });
+    rows.push({ date: dateStr, time: timeStr, type: String(disp[2]||""), category: String(disp[3]||""), item: String(disp[4]||""), amount: raw[5], ts: String(raw[6]||"") });
   }
   rows.reverse();
   return ContentService.createTextOutput(JSON.stringify({ rows: rows }))
@@ -574,7 +596,7 @@ const CATEGORIES = [
 ];
 
 let selectedCat = "";
-let selectedPerson = "";
+let selectedType = "";
 let entries = [];
 let pendingEntries = [];
 let dashYear = new Date().getFullYear();
@@ -589,11 +611,35 @@ function saveEntries() { localStorage.setItem("exp_v3_entries", JSON.stringify(e
 function savePending() { localStorage.setItem("exp_v3_pending", JSON.stringify(pendingEntries)); }
 
 function monthKey(year, month) { return year + "-" + String(month + 1).padStart(2, "0"); }
-function getBudget(person, year, month) {
-  return parseFloat(localStorage.getItem("exp_v3_budget_" + person + "_" + monthKey(year, month)) || "0");
+
+// In-memory budget cache (loaded from Sheets on startup)
+let budgetCache = {};
+
+function getBudget(type, year, month) {
+  const key = type + "_" + monthKey(year, month);
+  return parseFloat(budgetCache[key] || localStorage.getItem("exp_v3_budget_" + key) || "0");
 }
-function setBudgetStore(person, year, month, val) {
-  localStorage.setItem("exp_v3_budget_" + person + "_" + monthKey(year, month), val);
+
+function setBudgetCache(type, year, month, val) {
+  const key = type + "_" + monthKey(year, month);
+  budgetCache[key] = val;
+  localStorage.setItem("exp_v3_budget_" + key, val); // local fallback
+}
+
+async function loadBudgetsFromSheets(webhook) {
+  try {
+    const res = await fetch(webhook + "?action=getBudgets", { mode: "cors" });
+    const data = await res.json();
+    if (data.budgets && Array.isArray(data.budgets)) {
+      data.budgets.forEach(b => {
+        const key = b.type + "_" + b.monthKey;
+        budgetCache[key] = b.budget;
+        localStorage.setItem("exp_v3_budget_" + key, b.budget);
+      });
+    }
+  } catch(e) {
+    // Fall back to localStorage silently
+  }
 }
 
 /* ── Init ────────────────────────────────────── */
@@ -635,15 +681,16 @@ async function init() {
   if (saved) {
     localStorage.removeItem("exp_v3_entries");
     entries = [];
+    await loadBudgetsFromSheets(saved);
     await loadFromSheets(saved);
   } else {
     hideOverlay();
   }
 }
 
-/* ── Person & Category selectors ─────────────── */
+/* ── Type & Category selectors ─────────────── */
 function selectPerson(name) {
-  selectedPerson = name;
+  selectedType = name;
   ["Caleb","Tammy","Common"].forEach(p => {
     const btn = document.getElementById("btn-" + p.toLowerCase());
     btn.className = "person-btn";
@@ -678,7 +725,7 @@ async function submitExpense() {
   const amount = parseFloat(document.getElementById("amount").value);
   const item   = document.getElementById("item").value.trim();
   if (!amount || amount <= 0) { showToast("Please enter a valid amount.", "danger"); return; }
-  if (!selectedPerson)        { showToast("Please select a person.", "danger"); return; }
+  if (!selectedType)        { showToast("Please select a type.", "danger"); return; }
   if (!selectedCat)           { showToast("Please select a category.", "danger"); return; }
 
   const now = new Date();
@@ -692,7 +739,7 @@ async function submitExpense() {
   const entry = {
     date:     `${dd}/${mm}/${yyyy}`,
     time:     `${hh}:${min}`,
-    person:   selectedPerson,
+    type:     selectedType,
     category: selectedCat,
     item:     item || "-",
     amount:   amount.toFixed(2),
@@ -721,7 +768,7 @@ async function submitExpense() {
 
   document.getElementById("amount").value = "";
   document.getElementById("item").value   = "";
-  selectedCat = ""; selectedPerson = "";
+  selectedCat = ""; selectedType = "";
   document.querySelectorAll(".cat-btn").forEach(b => { b.classList.remove("selected"); b.setAttribute("aria-pressed","false"); });
   ["Caleb","Tammy","Common"].forEach(p => { document.getElementById("btn-"+p.toLowerCase()).className = "person-btn"; });
   btn.disabled = false;
@@ -806,7 +853,7 @@ async function loadFromSheets(webhook) {
         return {
           date:     dateStr,
           time:     timeStr,
-          person:   String(r.person || ""),
+          type:     String(r.type || ""),
           category: String(r.category || ""),
           item:     String(r.item || ""),
           amount:   String(parseFloat(r.amount) || 0),
@@ -871,11 +918,11 @@ function renderDashboard() {
     return entryMonth === dashMonth && fullYear === dashYear;
   });
 
-  ["Caleb","Tammy","Common"].forEach(person => {
-    const pEntries = monthEntries.filter(e => e.person === person);
+  ["Caleb","Tammy","Common"].forEach(type => {
+    const pEntries = monthEntries.filter(e => e.type === type);
     const spent = pEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
-    const budget = getBudget(person, dashYear, dashMonth);
-    const pid = person.toLowerCase();
+    const budget = getBudget(type, dashYear, dashMonth);
+    const pid = type.toLowerCase();
 
     document.getElementById(pid + "-spent").textContent = "$" + spent.toFixed(2);
 
@@ -926,13 +973,26 @@ function renderDashboard() {
   document.getElementById("combined-total").textContent = "$" + combined.toFixed(2);
 }
 
-function saveBudget(person) {
-  const val = parseFloat(document.getElementById(person.toLowerCase() + "-budget-input").value);
+async function saveBudget(type) {
+  const val = parseFloat(document.getElementById(type.toLowerCase() + "-budget-input").value);
   if (!val || val <= 0) { showToast("Please enter a valid budget amount.", "danger"); return; }
-  setBudgetStore(person, dashYear, dashMonth, val);
+  setBudgetCache(type, dashYear, dashMonth, val);
   renderDashboard();
   const mk = MONTH_NAMES[dashMonth] + " " + dashYear;
-  showToast(person + "'s budget for " + mk + " set to $" + val.toFixed(2) + " ✓", "success");
+  showToast(type + "'s budget for " + mk + " set to $" + val.toFixed(2) + " ✓", "success");
+
+  // Push to Sheets
+  const webhook = localStorage.getItem("exp_v3_webhook");
+  if (webhook) {
+    try {
+      await fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "saveBudget", type, monthKey: monthKey(dashYear, dashMonth), budget: val }),
+        mode: "no-cors"
+      });
+    } catch(e) { /* fail silently, local cache already saved */ }
+  }
 }
 
 /* ── Recent ──────────────────────────────────── */
@@ -959,7 +1019,7 @@ function renderRecent() {
 }
 
 function entryHTML(e) {
-  const badgeClass = e.person === "Caleb" ? "badge-caleb" : e.person === "Tammy" ? "badge-tammy" : "badge-common";
+  const badgeClass = e.type === "Caleb" ? "badge-caleb" : e.type === "Tammy" ? "badge-tammy" : "badge-common";
   return `<div class="entry">
     <div class="entry-left">
       <span class="entry-cat">${e.category}</span>
@@ -968,7 +1028,7 @@ function entryHTML(e) {
     </div>
     <div class="entry-right">
       <span class="entry-amount">$${parseFloat(e.amount).toFixed(2)}</span>
-      <span class="entry-person-badge ${badgeClass}">${e.person || ""}</span>
+      <span class="entry-person-badge ${badgeClass}">${e.type || ""}</span>
     </div>
   </div>`;
 }
@@ -1017,9 +1077,11 @@ function updateConnStatus(connected) {
 async function refreshFromSheets() {
   const webhook = localStorage.getItem("exp_v3_webhook");
   if (!webhook) { showToast("Add your Sheets URL in Setup first.", "warning"); return; }
-  const icon = document.querySelector("[aria-label='Refresh from Sheets'] i");
+  const icon = document.querySelector("#refresh-btn i");
   icon.style.animation = "spin 0.8s linear infinite";
   await loadFromSheets(webhook);
+  await loadBudgetsFromSheets(webhook);
+  renderDashboard();
   icon.style.animation = "";
 }
 
