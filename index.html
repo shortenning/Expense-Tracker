@@ -719,31 +719,30 @@ async function loadFromSheets(webhook) {
     const res = await fetch(webhook + "?action=get", { mode: "cors" });
     const data = await res.json();
     if (data.rows && Array.isArray(data.rows)) {
-      // Normalise rows — Sheets returns Date objects as ISO strings for date/time cols
       entries = data.rows.map(r => {
-        // Parse date field — may be ISO string (from Sheets Date cell) or already formatted
+        // Derive date and time from the ts (Timestamp) field which is always a clean ISO string.
+        // The Sheets Date/Time columns are unreliable (Sheets reformats them as Date objects).
+        let ts = r.ts ? String(r.ts) : "";
         let dateStr = String(r.date || "");
         let timeStr = String(r.time || "");
 
-        // If date looks like an ISO string (contains "T"), reformat it
-        if (dateStr.includes("T")) {
-          const d = new Date(dateStr);
-          if (!isNaN(d)) {
-            dateStr = d.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
+        // If ts is a valid ISO string, always use it as the source of truth for date/time
+        const tsDate = ts ? new Date(ts) : null;
+        if (tsDate && !isNaN(tsDate) && tsDate.getFullYear() > 1970) {
+          dateStr = tsDate.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
+          timeStr = tsDate.toLocaleTimeString("en-SG", { hour:"2-digit", minute:"2-digit" });
+        } else {
+          // ts missing or invalid — try to salvage date/time from the raw columns
+          if (dateStr.includes("T")) {
+            const d = new Date(dateStr);
+            if (!isNaN(d)) dateStr = d.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
           }
-        }
-        // If time looks like an ISO string, reformat it
-        if (timeStr.includes("T") || timeStr.includes("Z")) {
-          const d = new Date(timeStr);
-          if (!isNaN(d)) {
-            timeStr = d.toLocaleTimeString("en-SG", { hour:"2-digit", minute:"2-digit" });
+          if (timeStr.includes("T") || timeStr.includes("1899")) {
+            // 1899-12-30 epoch = time-only Sheets cell; extract HH:mm from the ISO string
+            const t = new Date(timeStr);
+            if (!isNaN(t)) timeStr = t.toLocaleTimeString("en-SG", { hour:"2-digit", minute:"2-digit" });
           }
-        }
-
-        // Derive a reliable ts for month filtering
-        let ts = r.ts || "";
-        if (!ts || ts === "undefined") {
-          // Reconstruct ts from date string (dd/mm/yyyy) if possible
+          // Rebuild ts from cleaned date/time for month filtering
           const parts = dateStr.split("/");
           if (parts.length === 3) {
             ts = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${timeStr || "00:00"}:00`).toISOString();
