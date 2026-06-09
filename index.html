@@ -531,6 +531,27 @@ function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var action = e && e.parameter && e.parameter.action ? e.parameter.action : "get";
 
+  // ── Save budget via GET params ───────────────────────────────────
+  if (action === "saveBudget") {
+    var bSheet = ss.getSheetByName("Budgets") || ss.insertSheet("Budgets");
+    if (bSheet.getLastRow() === 0) {
+      bSheet.appendRow(["Type", "MonthKey", "Budget"]);
+    }
+    var typeVal     = String(e.parameter.type || "");
+    var monthKeyVal = String(e.parameter.monthKey || "");
+    var budgetVal   = parseFloat(e.parameter.budget || "0");
+    // Delete all existing rows for this type+month (iterate backwards)
+    var bData = bSheet.getDataRange().getValues();
+    for (var i = bData.length - 1; i >= 1; i--) {
+      if (String(bData[i][0]) === typeVal && String(bData[i][1]) === monthKeyVal) {
+        bSheet.deleteRow(i + 1);
+      }
+    }
+    bSheet.appendRow([typeVal, monthKeyVal, budgetVal]);
+    return ContentService.createTextOutput(JSON.stringify({ status: "ok" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   // ── Return budgets ───────────────────────────────────────────────
   if (action === "getBudgets") {
     var bSheet = ss.getSheetByName("Budgets");
@@ -982,16 +1003,17 @@ async function saveBudget(type) {
   const mk = MONTH_NAMES[dashMonth] + " " + dashYear;
   showToast(type + "'s budget for " + mk + " set to $" + val.toFixed(2) + " ✓", "success");
 
-  // Push to Sheets
+  // Push budget to Sheets via GET params (avoids no-cors body stripping issue)
   const webhook = localStorage.getItem("exp_v3_webhook");
   if (webhook) {
     try {
-      await fetch(webhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "saveBudget", type, monthKey: monthKey(dashYear, dashMonth), budget: val }),
-        mode: "no-cors"
+      const params = new URLSearchParams({
+        action: "saveBudget",
+        type: type,
+        monthKey: monthKey(dashYear, dashMonth),
+        budget: val
       });
+      await fetch(webhook + "?" + params.toString(), { mode: "no-cors" });
     } catch(e) { /* fail silently, local cache already saved */ }
   }
 }
