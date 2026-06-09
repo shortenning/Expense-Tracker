@@ -512,26 +512,32 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
   var data = sheet.getDataRange().getValues();
+  var tz = Session.getScriptTimeZone();
   var rows = [];
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
-    // Format date and time explicitly as strings to avoid Sheets returning Date objects
+    if (!row[0] && !row[2]) continue; // skip fully empty rows
+
+    // Date: return as dd/MM/yyyy string (already SGT in the sheet)
     var dateVal = row[0];
-    var timeVal = row[1];
     var dateStr = (dateVal instanceof Date)
-      ? Utilities.formatDate(dateVal, Session.getScriptTimeZone(), "dd/MM/yyyy")
-      : String(dateVal);
+      ? Utilities.formatDate(dateVal, tz, "dd/MM/yyyy")
+      : String(dateVal).trim();
+
+    // Time: always return as 24h HH:mm string (already SGT in the sheet)
+    var timeVal = row[1];
     var timeStr = (timeVal instanceof Date)
-      ? Utilities.formatDate(timeVal, Session.getScriptTimeZone(), "HH:mm")
-      : String(timeVal);
+      ? Utilities.formatDate(timeVal, tz, "HH:mm")
+      : String(timeVal).trim();
+
     rows.push({
       date:     dateStr,
       time:     timeStr,
-      person:   row[2],
-      category: row[3],
-      item:     row[4],
+      person:   String(row[2] || ""),
+      category: String(row[3] || ""),
+      item:     String(row[4] || ""),
       amount:   row[5],
-      ts:       row[6]
+      ts:       String(row[6] || "")
     });
   }
   rows.reverse();
@@ -732,43 +738,58 @@ async function loadFromSheets(webhook) {
     const data = await res.json();
     if (data.rows && Array.isArray(data.rows)) {
       entries = data.rows.map(r => {
-        // Derive date and time from the ts (Timestamp) field which is always a clean ISO string.
-        // The Sheets Date/Time columns are unreliable (Sheets reformats them as Date objects).
-        let ts = r.ts ? String(r.ts) : "";
-        let dateStr = String(r.date || "");
-        let timeStr = String(r.time || "");
+        // ── Date ──────────────────────────────────────────────────────
+        // The Date column is already in SGT. Normalise to dd/mm/yyyy.
+        let dateStr = String(r.date || "").trim();
 
-        // Convert ISO ts to SGT (UTC+8) and format as dd/mm/yyyy and HH:mm
-        const tsDate = ts ? new Date(ts) : null;
-        if (tsDate && !isNaN(tsDate) && tsDate.getFullYear() > 1970) {
-          // Manually apply SGT offset (UTC+8) to avoid locale/timezone inconsistencies
-          const sgtOffset = 8 * 60; // minutes
-          const sgtDate = new Date(tsDate.getTime() + sgtOffset * 60 * 1000);
-          const dd   = String(sgtDate.getUTCDate()).padStart(2, "0");
-          const mm   = String(sgtDate.getUTCMonth() + 1).padStart(2, "0");
-          const yyyy = sgtDate.getUTCFullYear();
-          const hh   = String(sgtDate.getUTCHours()).padStart(2, "0");
-          const min  = String(sgtDate.getUTCMinutes()).padStart(2, "0");
+        // If Sheets returned a Date object as ISO (e.g. "2026-06-09T00:00:00.000Z"),
+        // extract the date portion directly from the ISO string (YYYY-MM-DD) — no timezone shift.
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}T/)) {
+          const [yyyy, mm, dd] = dateStr.split("T")[0].split("-");
           dateStr = `${dd}/${mm}/${yyyy}`;
-          timeStr = `${hh}:${min}`;
+        }
+        // Handle yy format (e.g. "09/06/26" → "09/06/2026")
+        const dateParts = dateStr.split("/");
+        if (dateParts.length === 3 && dateParts[2].length === 2) {
+          dateStr = `${dateParts[0]}/${dateParts[1]}/20${dateParts[2]}`;
+        }
+
+        // ── Time ──────────────────────────────────────────────────────
+        // The Time column is already in SGT. Extract HH:mm as plain text.
+        let timeStr = String(r.time || "").trim();
+
+        // If Sheets returned a time as "11:31 AM" / "4:10 PM" style, convert to 24h
+        const ampm = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+        if (ampm) {
+          let h = parseInt(ampm[1], 10);
+          const m = ampm[2];
+          const period = ampm[3].toUpperCase();
+          if (period === "AM" && h === 12) h = 0;
+          if (period === "PM" && h !== 12) h += 12;
+          timeStr = `${String(h).padStart(2,"0")}:${m}`;
+        }
+        // If Sheets returned a 1899-epoch Date object for time-only cells
+        if (timeStr.match(/^1899-12-30T/) || timeStr.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+          const t = new Date(timeStr);
+          if (!isNaN(t)) {
+            // Extract UTC hours/minutes directly — Sheets stores time as UTC offset from 1899
+            timeStr = `${String(t.getUTCHours()).padStart(2,"0")}:${String(t.getUTCMinutes()).padStart(2,"0")}`;
+          }
+        }
+        // Strip seconds if present (e.g. "22:21:00" → "22:21")
+        timeStr = timeStr.replace(/^(\d{2}:\d{2}):\d{2}$/, "$1");
+
+        // ── Sort key (ts) ─────────────────────────────────────────────
+        // Build a reliable sort key from the cleaned date + time.
+        // We treat these as SGT (UTC+8), so subtract 8h to get UTC for ISO string.
+        let ts = "";
+        const dp = dateStr.split("/");
+        if (dp.length === 3) {
+          const isoLocal = `${dp[2]}-${dp[1]}-${dp[0]}T${timeStr || "00:00"}:00+08:00`;
+          const d = new Date(isoLocal);
+          ts = isNaN(d) ? new Date().toISOString() : d.toISOString();
         } else {
-          // ts missing or invalid — try to salvage date/time from the raw columns
-          if (dateStr.includes("T")) {
-            const d = new Date(dateStr);
-            if (!isNaN(d)) dateStr = d.toLocaleDateString("en-SG", { day:"2-digit", month:"2-digit", year:"numeric" });
-          }
-          if (timeStr.includes("T") || timeStr.includes("1899")) {
-            // 1899-12-30 epoch = time-only Sheets cell; extract HH:mm from the ISO string
-            const t = new Date(timeStr);
-            if (!isNaN(t)) timeStr = t.toLocaleTimeString("en-SG", { hour:"2-digit", minute:"2-digit" });
-          }
-          // Rebuild ts from cleaned date/time for month filtering
-          const parts = dateStr.split("/");
-          if (parts.length === 3) {
-            ts = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${timeStr || "00:00"}:00`).toISOString();
-          } else {
-            ts = new Date().toISOString();
-          }
+          ts = new Date().toISOString();
         }
 
         return {
@@ -778,11 +799,10 @@ async function loadFromSheets(webhook) {
           category: String(r.category || ""),
           item:     String(r.item || ""),
           amount:   String(parseFloat(r.amount) || 0),
-          ts:       ts
+          ts
         };
       }).filter(r => r.date);
       saveEntries();
-      // Retry any pending entries now that we're online
       if (pendingEntries.length > 0) await retryPending(true);
       hideOverlay();
       showSyncBanner(entries.length);
@@ -790,11 +810,8 @@ async function loadFromSheets(webhook) {
       throw new Error("Unexpected response");
     }
   } catch(err) {
-    // Fall back to local cache silently
     hideOverlay();
-    if (entries.length === 0) {
-      showSyncBanner(0);
-    }
+    if (entries.length === 0) showSyncBanner(0);
   }
 }
 
