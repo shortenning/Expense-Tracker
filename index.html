@@ -337,6 +337,24 @@ function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "all";
   var tz = Session.getScriptTimeZone();
 
+  // Debug: ?action=debugBudgets — returns raw cell values for inspection
+  if (action === "debugBudgets") {
+    var bSheet = ss.getSheetByName("Budgets");
+    if (!bSheet) return ContentService.createTextOutput(JSON.stringify({error:"No Budgets sheet"})).setMimeType(ContentService.MimeType.JSON);
+    var bd = bSheet.getDataRange().getValues();
+    var debug = [];
+    for (var i = 0; i < bd.length; i++) {
+      debug.push({
+        row: i,
+        col0: String(bd[i][0]), col0type: typeof bd[i][0],
+        col1: String(bd[i][1]), col1type: typeof bd[i][1],
+        col2: String(bd[i][2]), col2type: typeof bd[i][2],
+        col3: bd[i].length > 3 ? String(bd[i][3]) : "MISSING"
+      });
+    }
+    return ContentService.createTextOutput(JSON.stringify({debug:debug})).setMimeType(ContentService.MimeType.JSON);
+  }
+
   // Save budget: ?action=saveBudget&type=Caleb&ym=2026-06&budget=700&ts=ISO
   if (action === "saveBudget") {
     var bSheet = ss.getSheetByName("Budgets") || ss.insertSheet("Budgets");
@@ -373,11 +391,19 @@ function doGet(e) {
   if (bSheet && bSheet.getLastRow() >= 2) {
     var bd = bSheet.getDataRange().getValues();
     for (var i = 1; i < bd.length; i++) {
-      var type = String(bd[i][0]||"");
-      var ym   = String(bd[i][1]||"");
+      var type = String(bd[i][0]||"").trim();
+      // Handle ym column — Sheets may auto-convert "2026-06" to a Date object
+      var ymRaw = bd[i][1];
+      var ym;
+      if (ymRaw instanceof Date) {
+        // Extract year and month from the Date, formatted as YYYY-MM
+        ym = ymRaw.getFullYear() + "-" + String(ymRaw.getMonth()+1).padStart(2,"0");
+      } else {
+        ym = String(ymRaw||"").trim();
+      }
       var amt  = parseFloat(bd[i][2]||0);
-      var sat  = String(bd[i][3]||"");
-      if (!/^\\d{4}-\\d{2}$/.test(ym)) continue; // skip malformed
+      var sat  = bd[i].length > 3 ? String(bd[i][3]||"") : String(i);
+      if (!/^\d{4}-\d{2}$/.test(ym)) continue;
       var key  = type + "|" + ym;
       if (!budgets[key] || sat > budgets[key].savedAt) {
         budgets[key] = {type:type,ym:ym,budget:amt,savedAt:sat};
