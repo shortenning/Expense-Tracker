@@ -384,6 +384,8 @@ function doGet(e) {
       }
     }
   }
+  // Note: Apps Script does not support custom response headers for cache control,
+  // but the client uses cache-busting (?_=timestamp) on every fetch.
   return ContentService.createTextOutput(JSON.stringify({rows:rows,budgets:Object.values(budgets)})).setMimeType(ContentService.MimeType.JSON);
 }`;
 
@@ -500,7 +502,9 @@ async function init() {
 ═══════════════════════════════════════════════ */
 async function fetchAll(wh) {
   try {
-    const res  = await fetch(wh, { mode: "cors" });
+    // Add cache-busting param so Safari never serves a stale response
+    const url = wh + "?_=" + Date.now();
+    const res  = await fetch(url, { mode: "cors" });
     const data = await res.json();
 
     // Process expenses
@@ -622,7 +626,7 @@ function renderDashboard() {
         </div>
         <div class="budget-edit-row">
           <label>Set monthly budget $</label>
-          <input class="budget-input" id="bi-${type}" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" value="${budget>0?budget:""}" />
+          <input class="budget-input" id="bi-${type}" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" value="${budget>0?budget:""}" onkeydown="if(event.key==='Enter')saveBudget('${type}')" />
           <button class="budget-save-btn" onclick="saveBudget('${type}')">Save</button>
         </div>
       </div>`;
@@ -645,8 +649,8 @@ async function saveBudget(type) {
   const wh = localStorage.getItem("exp_webhook");
   if (wh) {
     try {
-      const ts = new Date().toISOString();
-      const url = wh+"?action=saveBudget&type="+encodeURIComponent(type)+"&ym="+encodeURIComponent(ym)+"&budget="+val+"&ts="+encodeURIComponent(ts);
+      const ts  = new Date().toISOString();
+      const url = wh+"?action=saveBudget&type="+encodeURIComponent(type)+"&ym="+encodeURIComponent(ym)+"&budget="+val+"&ts="+encodeURIComponent(ts)+"&_="+Date.now();
       await fetch(url, { mode: "no-cors" });
     } catch(e) { /* silent */ }
   }
