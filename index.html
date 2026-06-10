@@ -153,9 +153,9 @@
     .badge-caleb{background:var(--blue-light);color:var(--blue);}
     .badge-tammy{background:var(--purple-light);color:var(--purple);}
     .badge-common{background:var(--teal-light);color:var(--teal);}
-    .delete-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:color 0.15s;}
+    .delete-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px 8px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:all 0.15s;min-width:44px;text-align:center;}
     .delete-btn:hover{color:var(--danger-text);}
-    .delete-btn.confirming{color:var(--danger-text);}
+    .delete-btn.confirming{color:var(--danger-text);background:var(--danger-bg);border:0.5px solid var(--danger-border);}
     .empty{font-size:14px;color:var(--text3);text-align:center;padding:20px 0;}
     /* Setup */
     .setup-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
@@ -805,8 +805,8 @@ function entryHTML(e, idx) {
 async function deleteEntry(idx, btn) {
   if (!btn.classList.contains("confirming")) {
     btn.classList.add("confirming");
-    btn.title = "Tap again to confirm delete";
-    btn.innerHTML = '<i class="ti ti-trash" style="color:var(--danger-text);"></i>';
+    btn.title = "Tap again to confirm";
+    btn.innerHTML = '<span style="font-size:11px;font-weight:600;color:var(--danger-text);white-space:nowrap;">Delete?</span>';
     // Auto-reset after 3 seconds if not confirmed
     btn._resetTimer = setTimeout(() => {
       btn.classList.remove("confirming");
