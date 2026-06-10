@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker</title>
+  <title>Expense Tracker v2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -141,18 +141,21 @@
     .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
     .section-header h2{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;}
     .total-badge{font-size:15px;font-weight:600;color:var(--green);}
-    .entry{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:0.5px solid var(--border);}
+    .entry{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:0.5px solid var(--border);position:relative;}
     .entry:last-child{border-bottom:none;}
-    .entry-left{display:flex;flex-direction:column;gap:2px;}
+    .entry-left{display:flex;flex-direction:column;gap:2px;flex:1;}
     .entry-cat{font-size:14px;font-weight:500;}
     .entry-meta{font-size:13px;color:var(--text2);}
     .entry-time{font-size:11px;color:var(--text3);margin-top:1px;}
-    .entry-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+    .entry-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-left:10px;}
     .entry-amount{font-size:15px;font-weight:600;}
     .entry-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;}
     .badge-caleb{background:var(--blue-light);color:var(--blue);}
     .badge-tammy{background:var(--purple-light);color:var(--purple);}
     .badge-common{background:var(--teal-light);color:var(--teal);}
+    .delete-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:color 0.15s;}
+    .delete-btn:hover{color:var(--danger-text);}
+    .delete-btn.confirming{color:var(--danger-text);}
     .empty{font-size:14px;color:var(--text3);text-align:center;padding:20px 0;}
     /* Setup */
     .setup-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
@@ -190,6 +193,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v2</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -282,9 +286,12 @@
       </div>
       <div class="field">
         <label>Google Apps Script URL</label>
-        <input type="text" id="webhook-url" placeholder="https://script.google.com/macros/s/…/exec" oninput="saveWebhook()" />
+        <input type="text" id="webhook-url" placeholder="https://script.google.com/macros/s/…/exec" oninput="saveWebhook()" onblur="saveWebhook()" />
       </div>
-      <p style="font-size:12px;color:var(--text3);margin-top:6px;">Paste your deployed Apps Script URL here.</p>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px;">Paste your deployed Apps Script URL here. Saved automatically.</p>
+      <button onclick="testConnection()" style="margin-top:10px;padding:7px 14px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text2);font-family:var(--font);font-size:13px;cursor:pointer;">
+        <i class="ti ti-plug" style="font-size:13px;vertical-align:-1px;margin-right:4px;"></i>Test connection
+      </button>
       <div id="pending-section" style="display:none;">
         <div class="pending-count">
           <i class="ti ti-clock" style="font-size:15px;"></i>
@@ -336,24 +343,22 @@ function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "all";
   var tz = Session.getScriptTimeZone();
-  var VERSION = "v10";
 
-  // Debug: ?action=debugBudgets — returns raw cell values for inspection
-  if (action === "debugBudgets") {
-    var bSheet = ss.getSheetByName("Budgets");
-    if (!bSheet) return ContentService.createTextOutput(JSON.stringify({error:"No Budgets sheet"})).setMimeType(ContentService.MimeType.JSON);
-    var bd = bSheet.getDataRange().getValues();
-    var debug = [];
-    for (var i = 0; i < bd.length; i++) {
-      debug.push({
-        row: i,
-        col0: String(bd[i][0]), col0type: typeof bd[i][0],
-        col1: String(bd[i][1]), col1type: typeof bd[i][1],
-        col2: String(bd[i][2]), col2type: typeof bd[i][2],
-        col3: bd[i].length > 3 ? String(bd[i][3]) : "MISSING"
-      });
+  // Delete entry: ?action=deleteEntry&ts=ISO_TIMESTAMP
+  if (action === "deleteEntry") {
+    var eSheet = ss.getSheetByName("Expenses");
+    if (eSheet) {
+      var tsToDelete = String(e.parameter.ts || "");
+      var eData = eSheet.getDataRange().getValues();
+      // Search from bottom up to find the row with matching timestamp (col G = index 6)
+      for (var i = eData.length - 1; i >= 1; i--) {
+        if (String(eData[i][6]) === tsToDelete) {
+          eSheet.deleteRow(i + 1);
+          break;
+        }
+      }
     }
-    return ContentService.createTextOutput(JSON.stringify({debug:debug})).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
   }
 
   // Save budget: ?action=saveBudget&type=Caleb&ym=2026-06&budget=700&ts=ISO
@@ -412,7 +417,7 @@ function doGet(e) {
       }
     }
   }
-  return ContentService.createTextOutput(JSON.stringify({version:"v10",rows:rows,budgets:Object.values(budgets)})).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({rows:rows,budgets:Object.values(budgets)})).setMimeType(ContentService.MimeType.JSON);
 }`;
 
 /* ══════════════════════════════════════════════
@@ -773,14 +778,14 @@ function renderRecent() {
   const todayE   = entries.filter(e => isToday(e.date));
   const earlierE = entries.filter(e => !isToday(e.date));
   document.getElementById("today-total").textContent = "$"+todayE.reduce((s,e)=>s+parseFloat(e.amount),0).toFixed(2);
-  document.getElementById("entries-today").innerHTML   = todayE.length   ? todayE.map(entryHTML).join("")   : '<p class="empty">No entries yet today.</p>';
+  document.getElementById("entries-today").innerHTML   = todayE.length   ? todayE.map(e=>entryHTML(e, entries.indexOf(e))).join("")   : '<p class="empty">No entries yet today.</p>';
   document.getElementById("earlier-total").textContent = earlierE.length ? "$"+earlierE.reduce((s,e)=>s+parseFloat(e.amount),0).toFixed(2) : "";
-  document.getElementById("entries-earlier").innerHTML = earlierE.length ? earlierE.map(entryHTML).join("") : '<p class="empty">No earlier entries.</p>';
+  document.getElementById("entries-earlier").innerHTML = earlierE.length ? earlierE.map(e=>entryHTML(e, entries.indexOf(e))).join("") : '<p class="empty">No earlier entries.</p>';
 }
 
-function entryHTML(e) {
+function entryHTML(e, idx) {
   const c = e.type==="Caleb"?"caleb":e.type==="Tammy"?"tammy":"common";
-  return `<div class="entry">
+  return `<div class="entry" id="entry-${idx}">
     <div class="entry-left">
       <span class="entry-cat">${e.category}</span>
       <span class="entry-meta">${e.item}</span>
@@ -789,8 +794,50 @@ function entryHTML(e) {
     <div class="entry-right">
       <span class="entry-amount">$${parseFloat(e.amount).toFixed(2)}</span>
       <span class="entry-badge badge-${c}">${e.type}</span>
+      <button class="delete-btn" onclick="deleteEntry(${idx}, this)" title="Delete entry">
+        <i class="ti ti-trash"></i>
+      </button>
     </div>
   </div>`;
+}
+
+// Two-tap delete: first tap shows confirmation, second tap deletes
+async function deleteEntry(idx, btn) {
+  if (!btn.classList.contains("confirming")) {
+    btn.classList.add("confirming");
+    btn.title = "Tap again to confirm delete";
+    btn.innerHTML = '<i class="ti ti-trash" style="color:var(--danger-text);"></i>';
+    // Auto-reset after 3 seconds if not confirmed
+    btn._resetTimer = setTimeout(() => {
+      btn.classList.remove("confirming");
+      btn.title = "Delete entry";
+      btn.innerHTML = '<i class="ti ti-trash"></i>';
+    }, 3000);
+    return;
+  }
+  clearTimeout(btn._resetTimer);
+
+  // Confirmed — remove from local entries array
+  const entry = entries[idx];
+  if (!entry) return;
+  entries.splice(idx, 1);
+  localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
+
+  // Animate out
+  const row = document.getElementById("entry-"+idx);
+  if (row) { row.style.opacity="0"; row.style.transition="opacity 0.2s"; setTimeout(()=>renderRecent(),200); }
+  else renderRecent();
+
+  showToast("Entry deleted","success");
+
+  // Delete from Sheets via GET params
+  const wh = localStorage.getItem("exp_webhook");
+  if (wh && entry.ts) {
+    try {
+      const url = wh+"?action=deleteEntry&ts="+encodeURIComponent(entry.ts)+"&_="+Date.now();
+      await fetch(url, { mode: "no-cors" });
+    } catch(e) { /* silent */ }
+  }
 }
 
 /* ══════════════════════════════════════════════
@@ -860,6 +907,20 @@ function saveWebhook() {
     updateConnStatus(true);
     if (v!==prev) { document.getElementById("loading-overlay").style.cssText="display:flex;opacity:1;"; fetchAll(v); }
   } else { localStorage.removeItem("exp_webhook"); updateConnStatus(false); }
+}
+
+async function testConnection() {
+  const wh = localStorage.getItem("exp_webhook");
+  if (!wh) { showToast("Paste your Apps Script URL first.","warning"); return; }
+  try {
+    const res = await fetch(wh+"?_="+Date.now(), { mode:"cors" });
+    const data = await res.json();
+    const rowCount = data.rows ? data.rows.length : "?";
+    const budgetCount = data.budgets ? data.budgets.length : "?";
+    showToast(`Connected ✓ — ${rowCount} expenses, ${budgetCount} budget entries`, "success");
+  } catch(e) {
+    showToast("Connection failed — check your URL.", "danger");
+  }
 }
 
 function updateConnStatus(c) {
