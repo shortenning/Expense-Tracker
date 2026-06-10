@@ -153,7 +153,16 @@
     .badge-caleb{background:var(--blue-light);color:var(--blue);}
     .badge-tammy{background:var(--purple-light);color:var(--purple);}
     .badge-common{background:var(--teal-light);color:var(--teal);}
-    .delete-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px 8px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:all 0.15s;min-width:44px;text-align:center;}
+    .datetime-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);background:var(--surface2);color:var(--text);cursor:pointer;transition:all 0.15s;text-align:left;width:100%;}
+    .datetime-btn:active{opacity:0.8;}
+    .datetime-btn.modified{border-color:var(--green-border);background:var(--green-light);}
+    .datetime-btn.modified .datetime-icon-wrap{background:var(--green-mid);color:white;}
+    .datetime-btn.modified .datetime-label{color:var(--green);}
+    .datetime-btn.modified .datetime-value{color:var(--green);}
+    .datetime-icon-wrap{width:30px;height:30px;border-radius:var(--radius-sm);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--text2);flex-shrink:0;transition:all 0.15s;}
+    .datetime-text{display:flex;flex-direction:column;gap:1px;min-width:0;}
+    .datetime-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);}
+    .datetime-value{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .delete-btn:hover{color:var(--danger-text);}
     .delete-btn.confirming{color:var(--danger-text);background:var(--danger-bg);border:0.5px solid var(--danger-border);}
     .empty{font-size:14px;color:var(--text3);text-align:center;padding:20px 0;}
@@ -238,6 +247,28 @@
       <div class="field">
         <label>Item description</label>
         <input type="text" id="item" placeholder="e.g. Kopi at Ya Kun, Grab to Orchard…" />
+      </div>
+      <div class="divider"></div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Date &amp; Time</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="datetime-btn" id="date-btn" onclick="openDatePicker()">
+            <div class="datetime-icon-wrap"><i class="ti ti-calendar"></i></div>
+            <div class="datetime-text">
+              <span class="datetime-label">Date</span>
+              <span class="datetime-value" id="date-display">—</span>
+            </div>
+          </button>
+          <button class="datetime-btn" id="time-btn" onclick="openTimePicker()">
+            <div class="datetime-icon-wrap"><i class="ti ti-clock"></i></div>
+            <div class="datetime-text">
+              <span class="datetime-label">Time</span>
+              <span class="datetime-value" id="time-display">—</span>
+            </div>
+          </button>
+        </div>
+        <input type="date" id="date-input" style="display:none;" onchange="onDateChange(this.value)" />
+        <input type="time" id="time-input" style="display:none;" onchange="onTimeChange(this.value)" />
       </div>
     </div>
     <button class="submit-btn" id="submit-btn" onclick="submitExpense()">
@@ -516,6 +547,9 @@ async function init() {
 
   document.getElementById("script-display").textContent = APPS_SCRIPT;
 
+  // Prefill date/time pickers with current SGT values
+  resetDateTimePickers();
+
   const wh = localStorage.getItem("exp_webhook");
   if (wh) {
     document.getElementById("webhook-url").value = wh;
@@ -688,6 +722,91 @@ async function saveBudget(type) {
 }
 
 /* ══════════════════════════════════════════════
+   DATE / TIME PICKER
+═══════════════════════════════════════════════ */
+let pickedDate = null; // null = use current SGT date
+let pickedTime = null; // null = use current SGT time
+
+function openDatePicker() {
+  const input = document.getElementById("date-input");
+  // Set default value to today in SGT
+  const t = sgtNow();
+  input.value = t.yyyy+"-"+t.mm+"-"+t.dd;
+  if (pickedDate) input.value = pickedDate; // keep previously picked value
+  input.showPicker ? input.showPicker() : input.click();
+}
+
+function openTimePicker() {
+  const input = document.getElementById("time-input");
+  const t = sgtNow();
+  input.value = t.hh+":"+t.min;
+  if (pickedTime) input.value = pickedTime;
+  input.showPicker ? input.showPicker() : input.click();
+}
+
+function onDateChange(val) {
+  if (!val) return;
+  const [yyyy,mm,dd] = val.split("-");
+  const t = sgtNow();
+  const isToday = val === t.yyyy+"-"+t.mm+"-"+t.dd;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const btn = document.getElementById("date-btn");
+  if (isToday) {
+    pickedDate = null;
+    document.getElementById("date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
+    btn.classList.remove("modified");
+  } else {
+    pickedDate = val;
+    document.getElementById("date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
+    btn.classList.add("modified");
+  }
+}
+
+function onTimeChange(val) {
+  if (!val) return;
+  pickedTime = val; // HH:mm
+  const t = sgtNow();
+  const isNow = Math.abs(
+    parseInt(val.split(":")[0])*60 + parseInt(val.split(":")[1]) -
+    parseInt(t.hh)*60 - parseInt(t.min)
+  ) <= 2;
+  const btn = document.getElementById("time-btn");
+  const display = document.getElementById("time-display");
+  display.textContent = val;
+  btn.classList.add("modified");
+}
+
+function resetDateTimePickers() {
+  pickedDate = null;
+  pickedTime = null;
+  const t = sgtNow();
+  // Show actual today's date and current time as prefilled values
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("date-display").textContent = parseInt(t.dd)+" "+months[parseInt(t.mm)-1]+" "+t.yyyy;
+  document.getElementById("time-display").textContent = t.hh+":"+t.min;
+  document.getElementById("date-btn").classList.remove("modified");
+  document.getElementById("time-btn").classList.remove("modified");
+}
+
+function getEntryDateTime() {
+  const t = sgtNow();
+  let dd = t.dd, mm = t.mm, yyyy = t.yyyy, hh = t.hh, min = t.min;
+
+  if (pickedDate) {
+    const parts = pickedDate.split("-");
+    yyyy = parts[0]; mm = parts[1]; dd = parts[2];
+  }
+  if (pickedTime) {
+    const parts = pickedTime.split(":");
+    hh = parts[0]; min = parts[1];
+  }
+
+  // Build ISO timestamp treating as SGT (UTC+8)
+  const iso = new Date(`${yyyy}-${mm}-${dd}T${hh}:${min}:00+08:00`).toISOString();
+  return { date: dd+"/"+mm+"/"+yyyy, time: hh+":"+min, ts: iso };
+}
+
+/* ══════════════════════════════════════════════
    LOG EXPENSE
 ═══════════════════════════════════════════════ */
 function selectType(name) {
@@ -715,12 +834,11 @@ async function submitExpense() {
   if (!selectedType)        { showToast("Please select a type.","danger"); return; }
   if (!selectedCat)         { showToast("Please select a category.","danger"); return; }
 
-  const t = sgtNow();
+  const dt = getEntryDateTime();
   const entry = {
-    date: t.dd+"/"+t.mm+"/"+t.yyyy,
-    time: t.hh+":"+t.min,
+    date: dt.date, time: dt.time,
     type: selectedType, category: selectedCat,
-    item: item||"-", amount: amount.toFixed(2), ts: t.iso
+    item: item||"-", amount: amount.toFixed(2), ts: dt.ts
   };
 
   entries.unshift(entry);
@@ -749,6 +867,7 @@ async function submitExpense() {
   selectedType = ""; selectedCat = "";
   document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("selected"));
   TYPES.forEach(t => { document.getElementById("btn-"+t.toLowerCase()).className="type-btn"; });
+  resetDateTimePickers();
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-plus" style="font-size:18px;"></i>Log expense';
 }
