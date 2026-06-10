@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v2</title>
+  <title>Expense Tracker v4</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -202,7 +202,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v2</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v4</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -252,23 +252,33 @@
       <div class="field" style="margin-bottom:0;">
         <label>Date &amp; Time</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button class="datetime-btn" id="date-btn" onclick="openDatePicker()">
-            <div class="datetime-icon-wrap"><i class="ti ti-calendar"></i></div>
-            <div class="datetime-text">
-              <span class="datetime-label">Date</span>
-              <span class="datetime-value" id="date-display">—</span>
-            </div>
-          </button>
-          <button class="datetime-btn" id="time-btn" onclick="openTimePicker()">
-            <div class="datetime-icon-wrap"><i class="ti ti-clock"></i></div>
-            <div class="datetime-text">
-              <span class="datetime-label">Time</span>
-              <span class="datetime-value" id="time-display">—</span>
-            </div>
-          </button>
+          <!-- Date button with native input overlaid on top -->
+          <div style="position:relative;">
+            <button class="datetime-btn" id="date-btn">
+              <div class="datetime-icon-wrap"><i class="ti ti-calendar"></i></div>
+              <div class="datetime-text">
+                <span class="datetime-label">Date</span>
+                <span class="datetime-value" id="date-display">—</span>
+              </div>
+            </button>
+            <input type="date" id="date-input"
+              style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
+              onchange="onDateChange(this.value)" />
+          </div>
+          <!-- Time button with native input overlaid on top -->
+          <div style="position:relative;">
+            <button class="datetime-btn" id="time-btn">
+              <div class="datetime-icon-wrap"><i class="ti ti-clock"></i></div>
+              <div class="datetime-text">
+                <span class="datetime-label">Time</span>
+                <span class="datetime-value" id="time-display">—</span>
+              </div>
+            </button>
+            <input type="time" id="time-input"
+              style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
+              onchange="onTimeChange(this.value)" />
+          </div>
         </div>
-        <input type="date" id="date-input" style="display:none;" onchange="onDateChange(this.value)" />
-        <input type="time" id="time-input" style="display:none;" onchange="onTimeChange(this.value)" />
       </div>
     </div>
     <button class="submit-btn" id="submit-btn" onclick="submitExpense()">
@@ -727,23 +737,6 @@ async function saveBudget(type) {
 let pickedDate = null; // null = use current SGT date
 let pickedTime = null; // null = use current SGT time
 
-function openDatePicker() {
-  const input = document.getElementById("date-input");
-  // Set default value to today in SGT
-  const t = sgtNow();
-  input.value = t.yyyy+"-"+t.mm+"-"+t.dd;
-  if (pickedDate) input.value = pickedDate; // keep previously picked value
-  input.showPicker ? input.showPicker() : input.click();
-}
-
-function openTimePicker() {
-  const input = document.getElementById("time-input");
-  const t = sgtNow();
-  input.value = t.hh+":"+t.min;
-  if (pickedTime) input.value = pickedTime;
-  input.showPicker ? input.showPicker() : input.click();
-}
-
 function onDateChange(val) {
   if (!val) return;
   const [yyyy,mm,dd] = val.split("-");
@@ -780,12 +773,14 @@ function resetDateTimePickers() {
   pickedDate = null;
   pickedTime = null;
   const t = sgtNow();
-  // Show actual today's date and current time as prefilled values
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   document.getElementById("date-display").textContent = parseInt(t.dd)+" "+months[parseInt(t.mm)-1]+" "+t.yyyy;
   document.getElementById("time-display").textContent = t.hh+":"+t.min;
   document.getElementById("date-btn").classList.remove("modified");
   document.getElementById("time-btn").classList.remove("modified");
+  // Prefill native inputs so iOS picker opens at the right default
+  document.getElementById("date-input").value = t.yyyy+"-"+t.mm+"-"+t.dd;
+  document.getElementById("time-input").value = t.hh+":"+t.min;
 }
 
 function getEntryDateTime() {
