@@ -336,6 +336,7 @@ function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "all";
   var tz = Session.getScriptTimeZone();
+  var VERSION = "v10";
 
   // Debug: ?action=debugBudgets — returns raw cell values for inspection
   if (action === "debugBudgets") {
@@ -360,8 +361,8 @@ function doGet(e) {
     var bSheet = ss.getSheetByName("Budgets") || ss.insertSheet("Budgets");
     if (bSheet.getLastRow() === 0) bSheet.appendRow(["Type","YearMonth","Budget","SavedAt"]);
     var ym = String(e.parameter.ym || "");
-    // Strict validation: must be YYYY-MM
-    if (!/^\\d{4}-\\d{2}$/.test(ym)) {
+    // Simple format check: must be 7 chars with dash at position 4 (YYYY-MM)
+    if (ym.length !== 7 || ym.charAt(4) !== "-") {
       return ContentService.createTextOutput(JSON.stringify({status:"error",reason:"bad ym: "+ym})).setMimeType(ContentService.MimeType.JSON);
     }
     bSheet.appendRow([String(e.parameter.type||""), ym, parseFloat(e.parameter.budget||0), String(e.parameter.ts||new Date().toISOString())]);
@@ -403,16 +404,15 @@ function doGet(e) {
       }
       var amt  = parseFloat(bd[i][2]||0);
       var sat  = bd[i].length > 3 ? String(bd[i][3]||"") : String(i);
-      if (!/^\d{4}-\d{2}$/.test(ym)) continue;
+      // Simple format check without regex: length must be 7 and char 4 must be "-"
+      if (ym.length !== 7 || ym.charAt(4) !== "-") continue;
       var key  = type + "|" + ym;
       if (!budgets[key] || sat > budgets[key].savedAt) {
         budgets[key] = {type:type,ym:ym,budget:amt,savedAt:sat};
       }
     }
   }
-  // Note: Apps Script does not support custom response headers for cache control,
-  // but the client uses cache-busting (?_=timestamp) on every fetch.
-  return ContentService.createTextOutput(JSON.stringify({rows:rows,budgets:Object.values(budgets)})).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({version:"v10",rows:rows,budgets:Object.values(budgets)})).setMimeType(ContentService.MimeType.JSON);
 }`;
 
 /* ══════════════════════════════════════════════
