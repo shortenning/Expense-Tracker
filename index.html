@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v30</title>
+  <title>Expense Tracker v32</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -132,11 +132,22 @@
     .bar-common{background:var(--teal-mid);}
     .bar-over{background:var(--danger-border);}
     .budget-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);}
-    .budget-edit-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);}
-    .budget-edit-row label{font-size:12px;color:var(--text2);white-space:nowrap;}
-    .budget-input{flex:1;padding:7px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font);background:var(--surface2);color:var(--text);}
-    .budget-input:focus{outline:none;border-color:var(--border2);}
-    .budget-save-btn{padding:7px 14px;border:none;border-radius:var(--radius-sm);background:var(--green-mid);color:white;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap;}
+    .budget-set-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);}
+    .budget-set-label{font-size:12px;color:var(--text2);font-weight:500;}
+    .budget-pill-wrap{display:flex;align-items:center;gap:4px;}
+    .budget-step-btn{width:28px;height:28px;border:0.5px solid var(--border);border-radius:50%;background:var(--surface2);color:var(--text);font-size:18px;line-height:1;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;transition:background 0.1s;flex-shrink:0;}
+    .budget-step-btn:active{background:var(--border);}
+    .budget-pill{padding:5px 14px;background:var(--surface2);border:0.5px solid var(--border);border-radius:99px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;white-space:nowrap;transition:background 0.15s;min-width:80px;text-align:center;}
+    .budget-pill:hover{background:var(--border);}
+    .budget-slider-wrap{margin-top:10px;}
+    .budget-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:var(--surface2);outline:none;cursor:pointer;}
+    .budget-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--green-mid);cursor:pointer;border:2px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+    .budget-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--green-mid);cursor:pointer;border:2px solid var(--surface);}
+    .budget-slider-ticks{display:flex;justify-content:space-between;margin-top:4px;}
+    .budget-slider-ticks span{font-size:10px;color:var(--text3);}
+    /* inline edit */
+    .budget-inline-input{padding:4px 10px;background:var(--surface2);border:0.5px solid var(--green-border);border-radius:99px;font-size:13px;font-weight:600;color:var(--text);min-width:80px;text-align:center;font-family:var(--font);outline:none;-moz-appearance:textfield;}
+    .budget-inline-input::-webkit-outer-spin-button,.budget-inline-input::-webkit-inner-spin-button{-webkit-appearance:none;}
     /* Recent */
     .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
     .section-header h2{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;}
@@ -232,7 +243,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v30</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v32</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -761,10 +772,25 @@ function renderDashboard() {
           <div class="budget-bar-track"><div class="budget-bar-fill ${barClass}" style="width:${barW}%"></div></div>
           <div class="budget-labels"><span>${pctTxt}</span><span>${budget>0?"of monthly budget":"set a budget below"}</span></div>
         </div>
-        <div class="budget-edit-row">
-          <label>Set monthly budget $</label>
-          <input class="budget-input" id="bi-${type}" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 1500" value="${budget>0?budget:""}" onkeydown="if(event.key==='Enter')saveBudget('${type}')" />
-          <button class="budget-save-btn" onclick="saveBudget('${type}')">Save</button>
+        <div class="budget-set-row">
+          <span class="budget-set-label">Monthly budget</span>
+          <div class="budget-pill-wrap">
+            <button class="budget-step-btn" onclick="stepBudget('${type}',-50)" aria-label="Decrease by 50">−</button>
+            <span class="budget-pill" id="bpill-${type}" onclick="editBudgetInline('${type}')" title="Tap to edit">
+              ${budget>0?"$"+budget.toFixed(0):"Set budget"}
+            </span>
+            <button class="budget-step-btn" onclick="stepBudget('${type}',50)" aria-label="Increase by 50">+</button>
+          </div>
+        </div>
+        <div class="budget-slider-wrap">
+          <input type="range" class="budget-slider" id="bslider-${type}"
+            min="0" max="2000" step="50"
+            value="${budget>0?budget:0}"
+            oninput="onSliderInput('${type}',this.value)"
+            onchange="onSliderCommit('${type}',this.value)" />
+          <div class="budget-slider-ticks">
+            <span>$0</span><span>$400</span><span>$800</span><span>$1,200</span><span>$1,600</span><span>$2,000</span>
+          </div>
         </div>
       </div>`;
   });
@@ -777,17 +803,63 @@ function renderDashboard() {
   }
 }
 
-async function saveBudget(type) {
-  const input = document.getElementById("bi-"+type);
-  const val = parseFloat(input.value);
-  if (!val || val <= 0) { showToast("Please enter a valid budget amount.","danger"); return; }
+function onSliderInput(type, val) {
+  // Live update pill label while dragging
+  const pill = document.getElementById("bpill-"+type);
+  if (pill) pill.textContent = val > 0 ? "$"+parseInt(val).toLocaleString() : "Set budget";
+}
 
-  const ym = ymKey(dashYear, dashMonth);
+function onSliderCommit(type, val) {
+  const v = parseFloat(val);
+  if (v <= 0) return;
+  saveBudgetVal(type, v);
+}
+
+function stepBudget(type, delta) {
+  const slider = document.getElementById("bslider-"+type);
+  const current = parseFloat(slider ? slider.value : 0) || 0;
+  const newVal = Math.max(0, Math.min(2000, current + delta));
+  if (slider) slider.value = newVal;
+  onSliderInput(type, newVal);
+  if (newVal > 0) saveBudgetVal(type, newVal);
+}
+
+function editBudgetInline(type) {
+  const pill = document.getElementById("bpill-"+type);
+  if (!pill) return;
+  const slider = document.getElementById("bslider-"+type);
+  const current = slider ? parseFloat(slider.value)||0 : 0;
+  // Replace pill with inline input
+  const input = document.createElement("input");
+  input.type = "number"; input.min = "0"; input.step = "1"; input.inputMode = "numeric";
+  input.className = "budget-inline-input";
+  input.value = current > 0 ? current : "";
+  input.placeholder = "e.g. 1500";
+  input.style.width = "90px";
+  pill.replaceWith(input);
+  input.focus(); input.select();
+  const commit = () => {
+    const v = parseFloat(input.value);
+    if (v > 0) {
+      if (slider) slider.value = Math.min(v, 2000);
+      saveBudgetVal(type, v);
+    } else renderDashboard();
+  };
+  input.addEventListener("blur", commit);
+  input.addEventListener("keydown", e => { if (e.key==="Enter") { input.blur(); } });
+}
+
+async function saveBudgetVal(type, val) {
+  const ym  = ymKey(dashYear, dashMonth);
   const key = type + "|" + ym;
   budgets[key] = val;
+  // Update pill and slider without full re-render
+  const pill   = document.getElementById("bpill-"+type);
+  const slider = document.getElementById("bslider-"+type);
+  if (pill)   pill.textContent   = "$"+val.toLocaleString();
+  if (slider && val <= 2000) slider.value = val;
   renderDashboard();
-  showToast(type+"'s budget for "+MONTH_NAMES[dashMonth]+" "+dashYear+" set to $"+val.toFixed(2)+" ✓","success");
-
+  showToast(type+"'s budget set to $"+val.toFixed(2)+" ✓","success");
   const wh = localStorage.getItem("exp_webhook");
   if (wh) {
     try {
@@ -796,6 +868,13 @@ async function saveBudget(type) {
       await fetch(url, { mode: "no-cors" });
     } catch(e) { /* silent */ }
   }
+}
+
+async function saveBudget(type) {
+  const input = document.getElementById("bi-"+type);
+  const val = input ? parseFloat(input.value) : 0;
+  if (!val || val <= 0) { showToast("Please enter a valid budget amount.","danger"); return; }
+  saveBudgetVal(type, val);
 }
 
 /* ══════════════════════════════════════════════
