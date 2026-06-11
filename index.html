@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v32</title>
+  <title>Expense Tracker v33</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -243,7 +243,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v32</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v33</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -366,18 +366,7 @@
 
   <!-- RECENT -->
   <div id="tab-recent" style="display:none;">
-    <div class="card">
-      <div class="section-header">
-        <h2>Today</h2><span class="total-badge" id="today-total">$0.00</span>
-      </div>
-      <div id="entries-today"><p class="empty">No entries yet today.</p></div>
-    </div>
-    <div class="card">
-      <div class="section-header">
-        <h2>Earlier</h2><span class="total-badge" id="earlier-total"></span>
-      </div>
-      <div id="entries-earlier"><p class="empty">No earlier entries.</p></div>
-    </div>
+    <div id="recent-container"></div>
   </div>
 
   <!-- SETUP -->
@@ -1166,13 +1155,73 @@ async function retryPending(silent=false) {
 /* ══════════════════════════════════════════════
    RECENT
 ═══════════════════════════════════════════════ */
+function getDateLabel(dateStr) {
+  // Returns "Today", "Yesterday", or formatted date like "Mon, 9 Jun"
+  const t = sgtNow();
+  const todayFull  = t.dd+"/"+t.mm+"/"+t.yyyy;
+  const todayShort = t.dd+"/"+t.mm+"/"+t.yyyy.slice(2);
+
+  // Build yesterday string
+  const yest = new Date(parseInt(t.yyyy), parseInt(t.mm)-1, parseInt(t.dd)-1);
+  const yd   = String(yest.getDate()).padStart(2,"0");
+  const ym   = String(yest.getMonth()+1).padStart(2,"0");
+  const yy   = String(yest.getFullYear());
+  const yestFull  = yd+"/"+ym+"/"+yy;
+  const yestShort = yd+"/"+ym+"/"+yy.slice(2);
+
+  if (dateStr === todayFull  || dateStr === todayShort)  return "Today";
+  if (dateStr === yestFull   || dateStr === yestShort)   return "Yesterday";
+
+  // Parse dd/mm/yyyy or dd/mm/yy for display
+  const p = dateStr.split("/");
+  if (p.length === 3) {
+    const DAYS   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const yyyy = p[2].length === 2 ? "20"+p[2] : p[2];
+    const d = new Date(parseInt(yyyy), parseInt(p[1])-1, parseInt(p[0]));
+    if (!isNaN(d)) return DAYS[d.getDay()]+", "+parseInt(p[0])+" "+MONTHS[parseInt(p[1])-1]+" "+yyyy;
+  }
+  return dateStr;
+}
+
 function renderRecent() {
-  const todayE   = entries.filter(e => isToday(e.date));
-  const earlierE = entries.filter(e => !isToday(e.date));
-  document.getElementById("today-total").textContent = "$"+todayE.reduce((s,e)=>s+parseFloat(e.amount),0).toFixed(2);
-  document.getElementById("entries-today").innerHTML   = todayE.length   ? todayE.map(e=>entryHTML(e, entries.indexOf(e))).join("")   : '<p class="empty">No entries yet today.</p>';
-  document.getElementById("earlier-total").textContent = earlierE.length ? "$"+earlierE.reduce((s,e)=>s+parseFloat(e.amount),0).toFixed(2) : "";
-  document.getElementById("entries-earlier").innerHTML = earlierE.length ? earlierE.map(e=>entryHTML(e, entries.indexOf(e))).join("") : '<p class="empty">No earlier entries.</p>';
+  // Sort entries newest-first by ts if available, else by date+time string
+  const sorted = [...entries].sort((a, b) => {
+    const ta = a.ts || (a.date+"T"+a.time);
+    const tb = b.ts || (b.date+"T"+b.time);
+    return tb.localeCompare(ta);
+  });
+
+  // Group by date label preserving original index for edit/delete
+  const groups = {}; // label → [{entry, idx}]
+  const groupOrder = [];
+  sorted.forEach(e => {
+    const idx = entries.indexOf(e);
+    const label = getDateLabel(e.date);
+    if (!groups[label]) { groups[label] = []; groupOrder.push(label); }
+    groups[label].push({ e, idx });
+  });
+
+  if (groupOrder.length === 0) {
+    document.getElementById("recent-container").innerHTML =
+      `<div class="card"><p class="empty">No entries yet.</p></div>`;
+    return;
+  }
+
+  const html = groupOrder.map(label => {
+    const items = groups[label];
+    const total = items.reduce((s, {e}) => s + parseFloat(e.amount), 0);
+    const rows  = items.map(({e, idx}) => entryHTML(e, idx)).join("");
+    return `<div class="card">
+      <div class="section-header">
+        <h2>${label}</h2>
+        <span class="total-badge">$${total.toFixed(2)}</span>
+      </div>
+      ${rows}
+    </div>`;
+  }).join("");
+
+  document.getElementById("recent-container").innerHTML = html;
 }
 
 function entryHTML(e, idx) {
