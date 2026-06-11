@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v4</title>
+  <title>Expense Tracker v6</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -163,8 +163,31 @@
     .datetime-text{display:flex;flex-direction:column;gap:1px;min-width:0;}
     .datetime-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);}
     .datetime-value{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .delete-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px 8px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:all 0.15s;min-width:36px;text-align:center;}
     .delete-btn:hover{color:var(--danger-text);}
     .delete-btn.confirming{color:var(--danger-text);background:var(--danger-bg);border:0.5px solid var(--danger-border);}
+    .edit-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px 8px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:all 0.15s;min-width:36px;text-align:center;}
+    .edit-btn:hover{color:var(--blue-mid);}
+    /* Edit modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:flex-end;justify-content:center;}
+    .modal-overlay.show{display:flex;}
+    .modal-sheet{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:480px;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow-y:auto;}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .modal-header h2{font-size:17px;font-weight:600;}
+    .modal-close{background:var(--surface2);border:none;cursor:pointer;color:var(--text2);font-size:18px;padding:6px 10px;border-radius:var(--radius-sm);font-family:var(--font);line-height:1;}
+    .modal-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+    .modal-field label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;}
+    .modal-field input[type="text"],.modal-field input[type="number"]{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:var(--font);background:var(--surface2);color:var(--text);}
+    .modal-field input:focus{outline:none;border-color:var(--border2);}
+    .modal-type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+    .modal-type-btn{padding:9px 6px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:center;font-weight:500;}
+    .modal-type-btn.sel-caleb{background:var(--blue-light);border-color:var(--blue-border);color:var(--blue);}
+    .modal-type-btn.sel-tammy{background:var(--purple-light);border-color:var(--purple-border);color:var(--purple);}
+    .modal-type-btn.sel-common{background:var(--teal-light);border-color:var(--teal-border);color:var(--teal);}
+    .modal-cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+    .modal-cat-btn{padding:8px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:6px;text-align:left;}
+    .modal-cat-btn.selected{background:var(--green-light);border-color:var(--green-border);color:var(--green);font-weight:500;}
+    .modal-save-btn{width:100%;padding:14px;border:none;border-radius:var(--radius);background:var(--green-mid);color:white;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:6px;}
     .empty{font-size:14px;color:var(--text3);text-align:center;padding:20px 0;}
     /* Setup */
     .setup-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
@@ -202,7 +225,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v4</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v6</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -385,15 +408,26 @@ function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "all";
   var tz = Session.getScriptTimeZone();
 
-  // Delete entry: ?action=deleteEntry&ts=ISO_TIMESTAMP
+  // Delete entry: ?action=deleteEntry&ts=ISO&date=dd/mm/yyyy&time=HH:mm&type=X&amount=N
   if (action === "deleteEntry") {
     var eSheet = ss.getSheetByName("Expenses");
     if (eSheet) {
-      var tsToDelete = String(e.parameter.ts || "");
+      var tsToDelete   = String(e.parameter.ts     || "");
+      var dateToDelete = String(e.parameter.date   || "");
+      var timeToDelete = String(e.parameter.time   || "");
+      var typeToDelete = String(e.parameter.type   || "");
+      var amtToDelete  = String(e.parameter.amount || "");
       var eData = eSheet.getDataRange().getValues();
-      // Search from bottom up to find the row with matching timestamp (col G = index 6)
       for (var i = eData.length - 1; i >= 1; i--) {
-        if (String(eData[i][6]) === tsToDelete) {
+        var rowTs   = String(eData[i][6] || "");
+        var rowDate = String(eData[i][0] || "").trim();
+        var rowTime = String(eData[i][1] || "").trim();
+        var rowType = String(eData[i][2] || "").trim();
+        var rowAmt  = String(parseFloat(eData[i][5] || 0));
+        // Match by timestamp first; fall back to date+time+type+amount for rows without ts
+        var matchByTs    = tsToDelete && rowTs === tsToDelete;
+        var matchByFields = !tsToDelete && dateToDelete && rowDate === dateToDelete && rowTime === timeToDelete && rowType === typeToDelete && rowAmt === amtToDelete;
+        if (matchByTs || matchByFields) {
           eSheet.deleteRow(i + 1);
           break;
         }
@@ -908,9 +942,14 @@ function entryHTML(e, idx) {
     <div class="entry-right">
       <span class="entry-amount">$${parseFloat(e.amount).toFixed(2)}</span>
       <span class="entry-badge badge-${c}">${e.type}</span>
-      <button class="delete-btn" onclick="deleteEntry(${idx}, this)" title="Delete entry">
-        <i class="ti ti-trash"></i>
-      </button>
+      <div style="display:flex;gap:2px;justify-content:flex-end;">
+        <button class="edit-btn" onclick="openEditModal(${idx})" title="Edit entry">
+          <i class="ti ti-pencil"></i>
+        </button>
+        <button class="delete-btn" onclick="deleteEntry(${idx}, this)" title="Delete entry">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
     </div>
   </div>`;
 }
@@ -944,12 +983,163 @@ async function deleteEntry(idx, btn) {
 
   showToast("Entry deleted","success");
 
-  // Delete from Sheets via GET params
+  // Delete from Sheets — pass ts + fallback fields for rows without timestamp
   const wh = localStorage.getItem("exp_webhook");
-  if (wh && entry.ts) {
+  if (wh && entry) {
     try {
-      const url = wh+"?action=deleteEntry&ts="+encodeURIComponent(entry.ts)+"&_="+Date.now();
-      await fetch(url, { mode: "no-cors" });
+      const params = new URLSearchParams({
+        action: "deleteEntry",
+        ts:     entry.ts    || "",
+        date:   entry.date  || "",
+        time:   entry.time  || "",
+        type:   entry.type  || "",
+        amount: entry.amount|| "",
+        _:      Date.now()
+      });
+      await fetch(wh+"?"+params.toString(), { mode: "no-cors" });
+    } catch(e) { /* silent */ }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   EDIT MODAL
+═══════════════════════════════════════════════ */
+let editIdx = -1;
+let editType = "";
+let editCat  = "";
+
+function openEditModal(idx) {
+  editIdx = idx;
+  const e = entries[idx];
+  if (!e) return;
+
+  editType = e.type;
+  editCat  = e.category;
+
+  // Populate fields
+  document.getElementById("edit-amount").value = parseFloat(e.amount).toFixed(2);
+  document.getElementById("edit-item").value   = e.item === "-" ? "" : e.item;
+
+  // Type buttons
+  TYPES.forEach(t => {
+    const b = document.getElementById("edit-btn-"+t.toLowerCase());
+    b.className = "modal-type-btn";
+  });
+  document.getElementById("edit-btn-"+e.type.toLowerCase()).className = "modal-type-btn sel-"+e.type.toLowerCase();
+
+  // Category grid — build if empty
+  const grid = document.getElementById("edit-cat-grid");
+  if (!grid.children.length) {
+    CATEGORIES.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "modal-cat-btn";
+      btn.innerHTML = `<i class="ti ${c.icon}"></i>${c.name}`;
+      btn.onclick = () => editSelectCat(c.name, btn);
+      grid.appendChild(btn);
+    });
+  }
+  // Mark selected category
+  Array.from(grid.children).forEach(b => {
+    b.classList.toggle("selected", b.textContent.trim() === e.category);
+  });
+
+  // Date/time
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dp = e.date.split("/");
+  if (dp.length === 3) {
+    const dd = dp[0], mm = dp[1], yyyy = dp[2].length===2?"20"+dp[2]:dp[2];
+    document.getElementById("edit-date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
+    document.getElementById("edit-date-input").value = yyyy+"-"+mm+"-"+dd;
+  }
+  document.getElementById("edit-time-display").textContent = e.time;
+  document.getElementById("edit-time-input").value = e.time;
+
+  document.getElementById("edit-modal").classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeEditModal(event) {
+  if (event && event.target !== document.getElementById("edit-modal")) return;
+  document.getElementById("edit-modal").classList.remove("show");
+  document.body.style.overflow = "";
+  editIdx = -1;
+}
+
+function editSelectType(name) {
+  editType = name;
+  TYPES.forEach(t => {
+    document.getElementById("edit-btn-"+t.toLowerCase()).className = "modal-type-btn";
+  });
+  document.getElementById("edit-btn-"+name.toLowerCase()).className = "modal-type-btn sel-"+name.toLowerCase();
+}
+
+function editSelectCat(name, btn) {
+  editCat = name;
+  Array.from(document.getElementById("edit-cat-grid").children).forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+}
+
+function editOnDateChange(val) {
+  if (!val) return;
+  const [yyyy,mm,dd] = val.split("-");
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("edit-date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
+  document.getElementById("edit-date-btn").classList.add("modified");
+}
+
+function editOnTimeChange(val) {
+  if (!val) return;
+  document.getElementById("edit-time-display").textContent = val;
+  document.getElementById("edit-time-btn").classList.add("modified");
+}
+
+async function saveEdit() {
+  const amount = parseFloat(document.getElementById("edit-amount").value);
+  const item   = document.getElementById("edit-item").value.trim();
+  if (!amount || amount <= 0) { showToast("Please enter a valid amount.","danger"); return; }
+  if (!editType) { showToast("Please select a type.","danger"); return; }
+  if (!editCat)  { showToast("Please select a category.","danger"); return; }
+
+  const dateVal = document.getElementById("edit-date-input").value; // YYYY-MM-DD
+  const timeVal = document.getElementById("edit-time-input").value; // HH:mm
+  const [yyyy,mm,dd] = dateVal.split("-");
+  const date = dd+"/"+mm+"/"+yyyy;
+  const time = timeVal;
+  const ts   = new Date(`${yyyy}-${mm}-${dd}T${timeVal}:00+08:00`).toISOString();
+
+  const oldEntry  = entries[editIdx] ? {...entries[editIdx]} : {};
+  const oldTs     = oldEntry.ts     || "";
+  const oldDate   = oldEntry.date   || "";
+  const oldTime   = oldEntry.time   || "";
+  const oldType   = oldEntry.type   || "";
+  const oldAmount = oldEntry.amount || "";
+
+  const updated = { date, time, type: editType, category: editCat, item: item||"-", amount: amount.toFixed(2), ts };
+  entries[editIdx] = updated;
+  localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
+
+  closeEditModal();
+  renderRecent();
+  showToast("Entry updated ✓","success");
+
+  // Sync to Sheets: delete old row then write updated entry
+  const wh = localStorage.getItem("exp_webhook");
+  if (wh) {
+    try {
+      // Delete old row — pass ts + fallback fields for rows without timestamp
+      const oldEntry = { ts: oldTs, date: oldDate, time: oldTime, type: oldType, amount: oldAmount };
+      const params = new URLSearchParams({
+        action: "deleteEntry",
+        ts:     oldEntry.ts    || "",
+        date:   oldEntry.date  || "",
+        time:   oldEntry.time  || "",
+        type:   oldEntry.type  || "",
+        amount: oldEntry.amount|| "",
+        _:      Date.now()
+      });
+      await fetch(wh+"?"+params.toString(), { mode:"no-cors" });
+      // Write updated entry as new row
+      await fetch(wh, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(updated), mode:"no-cors" });
     } catch(e) { /* silent */ }
   }
 }
@@ -1051,5 +1241,69 @@ function copyScript(btn) {
 
 init();
 </script>
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal" onclick="closeEditModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h2>Edit expense</h2>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+
+    <div class="modal-field">
+      <label>Amount ($)</label>
+      <input type="number" id="edit-amount" step="0.01" min="0" inputmode="decimal" />
+    </div>
+
+    <div class="modal-field">
+      <label>Type</label>
+      <div class="modal-type-row" id="edit-type-row">
+        <button class="modal-type-btn" id="edit-btn-caleb"  onclick="editSelectType('Caleb')">Caleb</button>
+        <button class="modal-type-btn" id="edit-btn-tammy"  onclick="editSelectType('Tammy')">Tammy</button>
+        <button class="modal-type-btn" id="edit-btn-common" onclick="editSelectType('Common')">Common</button>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <label>Category</label>
+      <div class="modal-cat-grid" id="edit-cat-grid"></div>
+    </div>
+
+    <div class="modal-field">
+      <label>Item description</label>
+      <input type="text" id="edit-item" placeholder="e.g. Kopi at Ya Kun…" />
+    </div>
+
+    <div class="modal-field">
+      <label>Date &amp; Time</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="position:relative;">
+          <button class="datetime-btn" id="edit-date-btn">
+            <div class="datetime-icon-wrap"><i class="ti ti-calendar"></i></div>
+            <div class="datetime-text">
+              <span class="datetime-label">Date</span>
+              <span class="datetime-value" id="edit-date-display">—</span>
+            </div>
+          </button>
+          <input type="date" id="edit-date-input" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="editOnDateChange(this.value)" />
+        </div>
+        <div style="position:relative;">
+          <button class="datetime-btn" id="edit-time-btn">
+            <div class="datetime-icon-wrap"><i class="ti ti-clock"></i></div>
+            <div class="datetime-text">
+              <span class="datetime-label">Time</span>
+              <span class="datetime-value" id="edit-time-display">—</span>
+            </div>
+          </button>
+          <input type="time" id="edit-time-input" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="editOnTimeChange(this.value)" />
+        </div>
+      </div>
+    </div>
+
+    <button class="modal-save-btn" onclick="saveEdit()">
+      <i class="ti ti-check" style="font-size:16px;vertical-align:-2px;margin-right:6px;"></i>Save changes
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
