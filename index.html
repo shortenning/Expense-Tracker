@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v6</title>
+  <title>Expense Tracker v27</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -168,7 +168,14 @@
     .delete-btn.confirming{color:var(--danger-text);background:var(--danger-bg);border:0.5px solid var(--danger-border);}
     .edit-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px 8px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:all 0.15s;min-width:36px;text-align:center;}
     .edit-btn:hover{color:var(--blue-mid);}
-    /* Edit modal */
+    /* Pie chart */
+    .pie-filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+    .pie-filter-btn{padding:5px 12px;border:0.5px solid var(--border);border-radius:99px;font-size:12px;font-family:var(--font);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s;}
+    .pie-filter-btn.active{background:var(--surface);color:var(--text);font-weight:500;border-color:var(--border2);}
+    .pie-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);padding:4px 0;}
+    .pie-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .pie-legend-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .pie-legend-val{font-weight:600;color:var(--text);white-space:nowrap;}
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:flex-end;justify-content:center;}
     .modal-overlay.show{display:flex;}
     .modal-sheet{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:480px;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow-y:auto;}
@@ -225,7 +232,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v6</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v27</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -317,6 +324,20 @@
       <button class="month-arrow" onclick="shiftMonth(1)"><i class="ti ti-chevron-right"></i></button>
     </div>
     <div id="dash-cards"></div>
+
+    <!-- Category pie chart -->
+    <div class="card" id="pie-card" style="display:none;">
+      <div class="section-header" style="margin-bottom:16px;">
+        <h2>Spending by category</h2>
+      </div>
+      <!-- Filter tabs -->
+      <div class="pie-filter-row" id="pie-filter-row"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:14px;">
+        <svg id="pie-svg" viewBox="-1 -1 2 2" style="width:200px;height:200px;transform:rotate(-90deg);flex-shrink:0;" aria-label="Spending breakdown pie chart"></svg>
+        <div id="pie-legend" style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="section-header" style="margin-bottom:0;">
         <h2>All combined</h2>
@@ -742,6 +763,7 @@ function renderDashboard() {
   });
 
   document.getElementById("combined-total").textContent = "$"+combinedSpent.toFixed(2);
+  renderPieChart(monthEntries);
 }
 
 async function saveBudget(type) {
@@ -763,6 +785,97 @@ async function saveBudget(type) {
       await fetch(url, { mode: "no-cors" });
     } catch(e) { /* silent */ }
   }
+}
+
+/* ══════════════════════════════════════════════
+   PIE CHART
+═══════════════════════════════════════════════ */
+let pieFilter = "All"; // "All" | "Caleb" | "Tammy" | "Common"
+
+// 14 distinct colours for categories
+const CAT_COLORS = [
+  "#E07B54","#E0B454","#7BC47B","#54A0E0","#A07BE0",
+  "#E07BA0","#54D4C4","#C4D454","#E05454","#54C4E0",
+  "#B47BE0","#E0C47B","#7BE0B4","#9E9E9E"
+];
+
+function renderPieChart(monthEntries) {
+  const card = document.getElementById("pie-card");
+
+  // Build filter tabs
+  const filterRow = document.getElementById("pie-filter-row");
+  const filters = ["All", ...TYPES];
+  filterRow.innerHTML = filters.map(f =>
+    `<button class="pie-filter-btn${pieFilter===f?" active":""}" onclick="setPieFilter('${f}')">${f}</button>`
+  ).join("");
+
+  // Filter entries
+  const filtered = pieFilter === "All" ? monthEntries : monthEntries.filter(e => e.type === pieFilter);
+
+  if (filtered.length === 0) { card.style.display = "none"; return; }
+  card.style.display = "block";
+
+  // Aggregate by category
+  const totals = {};
+  filtered.forEach(e => {
+    const cat = e.category || "Other";
+    totals[cat] = (totals[cat] || 0) + parseFloat(e.amount);
+  });
+
+  const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+  const grand  = sorted.reduce((s,[,v]) => s+v, 0);
+
+  // Build SVG pie slices
+  const svg = document.getElementById("pie-svg");
+  svg.innerHTML = "";
+  let cumAngle = 0;
+
+  sorted.forEach(([cat, val], i) => {
+    const pct   = val / grand;
+    const angle = pct * 2 * Math.PI;
+    const x1 = Math.cos(cumAngle), y1 = Math.sin(cumAngle);
+    const x2 = Math.cos(cumAngle + angle), y2 = Math.sin(cumAngle + angle);
+    const large = angle > Math.PI ? 1 : 0;
+    const color = CAT_COLORS[i % CAT_COLORS.length];
+
+    if (pct >= 0.999) {
+      // Full circle — use two semicircles
+      const path1 = document.createElementNS("http://www.w3.org/2000/svg","path");
+      path1.setAttribute("d","M 1 0 A 1 1 0 0 1 -1 0 Z");
+      path1.setAttribute("fill", color);
+      const path2 = document.createElementNS("http://www.w3.org/2000/svg","path");
+      path2.setAttribute("d","M -1 0 A 1 1 0 0 1 1 0 Z");
+      path2.setAttribute("fill", color);
+      svg.appendChild(path1);
+      svg.appendChild(path2);
+    } else {
+      const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+      path.setAttribute("d",`M 0 0 L ${x1} ${y1} A 1 1 0 ${large} 1 ${x2} ${y2} Z`);
+      path.setAttribute("fill", color);
+      path.setAttribute("stroke", "var(--surface)");
+      path.setAttribute("stroke-width", "0.015");
+      svg.appendChild(path);
+    }
+    cumAngle += angle;
+  });
+
+  // Legend
+  const legend = document.getElementById("pie-legend");
+  legend.innerHTML = sorted.map(([cat, val], i) => {
+    const pct = Math.round((val/grand)*100);
+    const color = CAT_COLORS[i % CAT_COLORS.length];
+    return `<div class="pie-legend-item">
+      <div class="pie-legend-dot" style="background:${color};"></div>
+      <span class="pie-legend-name">${cat}</span>
+      <span class="pie-legend-val">${pct}% · $${val.toFixed(2)}</span>
+    </div>`;
+  }).join("");
+}
+
+function setPieFilter(f) {
+  pieFilter = f;
+  // Re-render dashboard which will also re-render pie
+  renderDashboard();
 }
 
 /* ══════════════════════════════════════════════
