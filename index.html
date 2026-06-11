@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v27</title>
+  <title>Expense Tracker v28</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -232,7 +232,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v27</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v28</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -763,7 +763,11 @@ function renderDashboard() {
   });
 
   document.getElementById("combined-total").textContent = "$"+combinedSpent.toFixed(2);
-  renderPieChart(monthEntries);
+  if (monthEntries.length === 0) {
+    document.getElementById("pie-card").style.display = "none";
+  } else {
+    renderPieChart(monthEntries);
+  }
 }
 
 async function saveBudget(type) {
@@ -801,6 +805,7 @@ const CAT_COLORS = [
 
 function renderPieChart(monthEntries) {
   const card = document.getElementById("pie-card");
+  card.style.display = "block"; // always show card
 
   // Build filter tabs
   const filterRow = document.getElementById("pie-filter-row");
@@ -812,8 +817,14 @@ function renderPieChart(monthEntries) {
   // Filter entries
   const filtered = pieFilter === "All" ? monthEntries : monthEntries.filter(e => e.type === pieFilter);
 
-  if (filtered.length === 0) { card.style.display = "none"; return; }
-  card.style.display = "block";
+  const svg    = document.getElementById("pie-svg");
+  const legend = document.getElementById("pie-legend");
+
+  if (filtered.length === 0) {
+    svg.innerHTML = `<circle cx="0" cy="0" r="1" fill="var(--surface2)" transform="rotate(-90)"/>`;
+    legend.innerHTML = `<div style="grid-column:1/-1;text-align:center;font-size:13px;color:var(--text3);padding:8px 0;">No expenses for ${pieFilter === "All" ? "this month" : pieFilter+" this month"}</div>`;
+    return;
+  }
 
   // Aggregate by category
   const totals = {};
@@ -826,7 +837,6 @@ function renderPieChart(monthEntries) {
   const grand  = sorted.reduce((s,[,v]) => s+v, 0);
 
   // Build SVG pie slices
-  const svg = document.getElementById("pie-svg");
   svg.innerHTML = "";
   let cumAngle = 0;
 
@@ -839,7 +849,6 @@ function renderPieChart(monthEntries) {
     const color = CAT_COLORS[i % CAT_COLORS.length];
 
     if (pct >= 0.999) {
-      // Full circle — use two semicircles
       const path1 = document.createElementNS("http://www.w3.org/2000/svg","path");
       path1.setAttribute("d","M 1 0 A 1 1 0 0 1 -1 0 Z");
       path1.setAttribute("fill", color);
@@ -860,7 +869,6 @@ function renderPieChart(monthEntries) {
   });
 
   // Legend
-  const legend = document.getElementById("pie-legend");
   legend.innerHTML = sorted.map(([cat, val], i) => {
     const pct = Math.round((val/grand)*100);
     const color = CAT_COLORS[i % CAT_COLORS.length];
