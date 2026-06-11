@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v33</title>
+  <title>Expense Tracker v34</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -243,7 +243,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v33</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v34</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -1185,11 +1185,24 @@ function getDateLabel(dateStr) {
 }
 
 function renderRecent() {
-  // Sort entries newest-first by ts if available, else by date+time string
+  // Sort entries newest-first — parse date properly to avoid string sort issues
   const sorted = [...entries].sort((a, b) => {
-    const ta = a.ts || (a.date+"T"+a.time);
-    const tb = b.ts || (b.date+"T"+b.time);
-    return tb.localeCompare(ta);
+    const toMs = e => {
+      if (e.ts) {
+        const d = new Date(e.ts);
+        if (!isNaN(d)) return d.getTime();
+      }
+      // Parse dd/mm/yyyy or dd/mm/yy
+      const p = (e.date||"").split("/");
+      if (p.length === 3) {
+        const yyyy = p[2].length===2 ? "20"+p[2] : p[2];
+        const t    = (e.time||"00:00").replace(":",":");
+        const d    = new Date(`${yyyy}-${p[1]}-${p[0]}T${t}:00+08:00`);
+        if (!isNaN(d)) return d.getTime();
+      }
+      return 0;
+    };
+    return toMs(b) - toMs(a);
   });
 
   // Group by date label preserving original index for edit/delete
