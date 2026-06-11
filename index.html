@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v29</title>
+  <title>Expense Tracker v30</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -232,7 +232,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v29</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v30</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -338,7 +338,7 @@
           <!-- Centre total label (not rotated) -->
           <div id="pie-centre" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
             <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);">Total</span>
-            <span id="pie-total" style="font-size:18px;font-weight:700;color:var(--text);"></span>
+            <span id="pie-total" style="font-size:15px;font-weight:700;color:var(--text);"></span>
           </div>
         </div>
         <div id="pie-legend" style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
@@ -879,10 +879,36 @@ function renderPieChart(monthEntries) {
   // Update centre total
   document.getElementById("pie-total").textContent = "$"+grand.toFixed(2);
 
-  // Draw a centre hole to make it a donut chart (makes centre label readable)
+  // Add percentage labels inside slices (only if slice is big enough)
+  let labelAngle = 0;
+  sorted.forEach(([cat, val], i) => {
+    const pct   = val / grand;
+    const angle = pct * 2 * Math.PI;
+    if (pct >= 0.07) { // only label slices >= 7%
+      const midAngle = labelAngle + angle / 2;
+      const r = 0.75; // radius for label position
+      const lx = Math.cos(midAngle) * r;
+      const ly = Math.sin(midAngle) * r;
+      const text = document.createElementNS("http://www.w3.org/2000/svg","text");
+      text.setAttribute("x", lx);
+      text.setAttribute("y", ly);
+      text.setAttribute("text-anchor","middle");
+      text.setAttribute("dominant-baseline","middle");
+      text.setAttribute("transform",`rotate(90,${lx},${ly})`); // counter-rotate so text reads upright
+      text.setAttribute("fill","white");
+      text.setAttribute("font-size","0.13");
+      text.setAttribute("font-weight","700");
+      text.setAttribute("font-family","DM Sans,system-ui,sans-serif");
+      text.textContent = Math.round(pct*100)+"%";
+      svg.appendChild(text);
+    }
+    labelAngle += angle;
+  });
+
+  // Draw a centre hole to make it a donut chart
   const hole = document.createElementNS("http://www.w3.org/2000/svg","circle");
   hole.setAttribute("cx","0"); hole.setAttribute("cy","0");
-  hole.setAttribute("r","0.55");
+  hole.setAttribute("r","0.45");
   hole.setAttribute("fill","var(--surface)");
   svg.appendChild(hole);
 
