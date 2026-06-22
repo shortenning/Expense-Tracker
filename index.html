@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v34</title>
+  <title>Expense Tracker v35</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -164,16 +164,14 @@
     .badge-caleb{background:var(--blue-light);color:var(--blue);}
     .badge-tammy{background:var(--purple-light);color:var(--purple);}
     .badge-common{background:var(--teal-light);color:var(--teal);}
-    .datetime-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);background:var(--surface2);color:var(--text);cursor:pointer;transition:all 0.15s;text-align:left;width:100%;}
-    .datetime-btn:active{opacity:0.8;}
-    .datetime-btn.modified{border-color:var(--green-border);background:var(--green-light);}
-    .datetime-btn.modified .datetime-icon-wrap{background:var(--green-mid);color:white;}
-    .datetime-btn.modified .datetime-label{color:var(--green);}
-    .datetime-btn.modified .datetime-value{color:var(--green);}
-    .datetime-icon-wrap{width:30px;height:30px;border-radius:var(--radius-sm);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--text2);flex-shrink:0;transition:all 0.15s;}
-    .datetime-text{display:flex;flex-direction:column;gap:1px;min-width:0;}
-    .datetime-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);}
-    .datetime-value{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    /* Date/time inputs */
+    .dt-input-wrap{display:flex;align-items:center;gap:6px;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 6px 0 10px;transition:border-color 0.15s;}
+    .dt-input-wrap:focus-within{border-color:var(--border2);}
+    .dt-input-wrap.modified{border-color:var(--green-border);background:var(--green-light);}
+    .dt-text-input{flex:1;border:none;outline:none;background:transparent;font-size:14px;font-family:var(--font);color:var(--text);padding:10px 0;min-width:0;}
+    .dt-text-input::placeholder{color:var(--text3);}
+    .dt-icon-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:17px;padding:8px 4px;display:flex;align-items:center;transition:color 0.15s;flex-shrink:0;}
+    .dt-icon-btn:hover{color:var(--text2);}
     .delete-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:6px 8px;border-radius:var(--radius-sm);font-size:16px;margin-top:2px;transition:all 0.15s;min-width:36px;text-align:center;}
     .delete-btn:hover{color:var(--danger-text);}
     .delete-btn.confirming{color:var(--danger-text);background:var(--danger-bg);border:0.5px solid var(--danger-border);}
@@ -243,7 +241,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v34</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v35</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -293,31 +291,37 @@
       <div class="field" style="margin-bottom:0;">
         <label>Date &amp; Time</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <!-- Date button with native input overlaid on top -->
-          <div style="position:relative;">
-            <button class="datetime-btn" id="date-btn">
-              <div class="datetime-icon-wrap"><i class="ti ti-calendar"></i></div>
-              <div class="datetime-text">
-                <span class="datetime-label">Date</span>
-                <span class="datetime-value" id="date-display">—</span>
-              </div>
-            </button>
-            <input type="date" id="date-input"
-              style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
-              onchange="onDateChange(this.value)" />
+          <!-- Date: text input + calendar icon button -->
+          <div class="dt-input-wrap">
+            <input type="text" class="dt-text-input" id="date-text"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              oninput="onDateTextInput(this.value)"
+              onblur="onDateTextBlur(this.value)" />
+            <div style="position:relative;flex-shrink:0;">
+              <button class="dt-icon-btn" id="date-icon-btn" aria-label="Pick date">
+                <i class="ti ti-calendar"></i>
+              </button>
+              <input type="date" id="date-input"
+                style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
+                onchange="onDateChange(this.value)" />
+            </div>
           </div>
-          <!-- Time button with native input overlaid on top -->
-          <div style="position:relative;">
-            <button class="datetime-btn" id="time-btn">
-              <div class="datetime-icon-wrap"><i class="ti ti-clock"></i></div>
-              <div class="datetime-text">
-                <span class="datetime-label">Time</span>
-                <span class="datetime-value" id="time-display">—</span>
-              </div>
-            </button>
-            <input type="time" id="time-input"
-              style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
-              onchange="onTimeChange(this.value)" />
+          <!-- Time: text input + clock icon button -->
+          <div class="dt-input-wrap">
+            <input type="text" class="dt-text-input" id="time-text"
+              placeholder="HH:MM"
+              maxlength="5"
+              oninput="onTimeTextInput(this.value)"
+              onblur="onTimeTextBlur(this.value)" />
+            <div style="position:relative;flex-shrink:0;">
+              <button class="dt-icon-btn" id="time-icon-btn" aria-label="Pick time">
+                <i class="ti ti-clock"></i>
+              </button>
+              <input type="time" id="time-input"
+                style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
+                onchange="onTimeChange(this.value)" />
+            </div>
           </div>
         </div>
       </div>
@@ -1005,49 +1009,83 @@ let pickedDate = null; // null = use current SGT date
 let pickedTime = null; // null = use current SGT time
 
 function onDateChange(val) {
+  // Called by native date picker icon
   if (!val) return;
   const [yyyy,mm,dd] = val.split("-");
   const t = sgtNow();
   const isToday = val === t.yyyy+"-"+t.mm+"-"+t.dd;
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const btn = document.getElementById("date-btn");
-  if (isToday) {
-    pickedDate = null;
-    document.getElementById("date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
-    btn.classList.remove("modified");
-  } else {
-    pickedDate = val;
-    document.getElementById("date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
-    btn.classList.add("modified");
-  }
+  document.getElementById("date-text").value = dd+"/"+mm+"/"+yyyy;
+  document.getElementById("date-text").closest(".dt-input-wrap").classList.toggle("modified", !isToday);
+  pickedDate = isToday ? null : val;
 }
 
 function onTimeChange(val) {
+  // Called by native time picker icon
   if (!val) return;
-  pickedTime = val; // HH:mm
+  document.getElementById("time-text").value = val;
+  document.getElementById("time-input").value = val;
+  pickedTime = val;
+  document.getElementById("time-text").closest(".dt-input-wrap").classList.add("modified");
+}
+
+function onDateTextInput(val) {
+  // Auto-format dd/mm/yyyy as user types
+  const el = document.getElementById("date-text");
+  let v = val.replace(/\D/g,"");
+  if (v.length > 2) v = v.slice(0,2)+"/"+v.slice(2);
+  if (v.length > 5) v = v.slice(0,5)+"/"+v.slice(5);
+  if (v.length > 10) v = v.slice(0,10);
+  el.value = v;
+}
+
+function onDateTextBlur(val) {
+  const p = val.split("/");
+  if (p.length !== 3 || !p[2]) return;
+  const dd = p[0].padStart(2,"0"), mm = p[1].padStart(2,"0");
+  const yyyy = p[2].length===2 ? "20"+p[2] : p[2];
+  if (yyyy.length !== 4) return;
+  const iso = yyyy+"-"+mm+"-"+dd;
+  const d = new Date(iso);
+  if (isNaN(d)) return;
+  document.getElementById("date-input").value = iso;
+  document.getElementById("date-text").value = dd+"/"+mm+"/"+yyyy;
   const t = sgtNow();
-  const isNow = Math.abs(
-    parseInt(val.split(":")[0])*60 + parseInt(val.split(":")[1]) -
-    parseInt(t.hh)*60 - parseInt(t.min)
-  ) <= 2;
-  const btn = document.getElementById("time-btn");
-  const display = document.getElementById("time-display");
-  display.textContent = val;
-  btn.classList.add("modified");
+  const isToday = iso === t.yyyy+"-"+t.mm+"-"+t.dd;
+  document.getElementById("date-text").closest(".dt-input-wrap").classList.toggle("modified", !isToday);
+  pickedDate = isToday ? null : iso;
+}
+
+function onTimeTextInput(val) {
+  // Auto-insert colon after HH
+  const el = document.getElementById("time-text");
+  let v = val.replace(/\D/g,"");
+  if (v.length > 2) v = v.slice(0,2)+":"+v.slice(2);
+  if (v.length > 5) v = v.slice(0,5);
+  el.value = v;
+}
+
+function onTimeTextBlur(val) {
+  const p = val.split(":");
+  if (p.length !== 2) return;
+  const hh = p[0].padStart(2,"0"), min = p[1].padStart(2,"0");
+  if (parseInt(hh)>23 || parseInt(min)>59) return;
+  const formatted = hh+":"+min;
+  document.getElementById("time-input").value = formatted;
+  document.getElementById("time-text").value = formatted;
+  pickedTime = formatted;
+  document.getElementById("time-text").closest(".dt-input-wrap").classList.add("modified");
 }
 
 function resetDateTimePickers() {
   pickedDate = null;
   pickedTime = null;
   const t = sgtNow();
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  document.getElementById("date-display").textContent = parseInt(t.dd)+" "+months[parseInt(t.mm)-1]+" "+t.yyyy;
-  document.getElementById("time-display").textContent = t.hh+":"+t.min;
-  document.getElementById("date-btn").classList.remove("modified");
-  document.getElementById("time-btn").classList.remove("modified");
-  // Prefill native inputs so iOS picker opens at the right default
+  document.getElementById("date-text").value = t.dd+"/"+t.mm+"/"+t.yyyy;
+  document.getElementById("time-text").value = t.hh+":"+t.min;
   document.getElementById("date-input").value = t.yyyy+"-"+t.mm+"-"+t.dd;
   document.getElementById("time-input").value = t.hh+":"+t.min;
+  const dtWraps = document.querySelectorAll(".dt-input-wrap");
+  dtWraps.forEach(w => w.classList.remove("modified"));
 }
 
 function getEntryDateTime() {
@@ -1066,6 +1104,29 @@ function getEntryDateTime() {
   // Build ISO timestamp treating as SGT (UTC+8)
   const iso = new Date(`${yyyy}-${mm}-${dd}T${hh}:${min}:00+08:00`).toISOString();
   return { date: dd+"/"+mm+"/"+yyyy, time: hh+":"+min, ts: iso };
+}
+
+const SUCCESS_MSGS = [
+  "Logged! 💸", "Ka-ching! 🎉", "Saved! ✨", "Got it! 👌",
+  "Noted! 📝", "Done! 🙌", "Tracked! 🏆", "Nice one! 💪",
+  "Money tracked! 💰", "On the record! 📊"
+];
+
+function showSuccessOverlay(category) {
+  const overlay = document.getElementById("success-overlay");
+  const pop     = document.getElementById("success-pop");
+  const msg     = document.getElementById("success-msg");
+  msg.textContent = SUCCESS_MSGS[Math.floor(Math.random() * SUCCESS_MSGS.length)];
+  overlay.style.display = "flex";
+  requestAnimationFrame(() => {
+    pop.style.opacity = "1";
+    pop.style.transform = "scale(1)";
+  });
+  setTimeout(() => {
+    pop.style.opacity = "0";
+    pop.style.transform = "scale(0.8)";
+    setTimeout(() => { overlay.style.display = "none"; pop.style.transform = "scale(0.7)"; }, 300);
+  }, 1200);
 }
 
 /* ══════════════════════════════════════════════
@@ -1113,7 +1174,7 @@ async function submitExpense() {
 
   if (wh) {
     const ok = await sendEntry(entry, wh);
-    if (ok) { showToast("Logged & saved to Google Sheets ✓","success"); }
+    if (ok) { showSuccessOverlay(); }
     else {
       pendingEntries.push(entry);
       localStorage.setItem("exp_pending", JSON.stringify(pendingEntries));
@@ -1608,6 +1669,16 @@ init();
     <button class="modal-save-btn" onclick="saveEdit()">
       <i class="ti ti-check" style="font-size:16px;vertical-align:-2px;margin-right:6px;"></i>Save changes
     </button>
+  </div>
+</div>
+
+<!-- Success overlay -->
+<div id="success-overlay" style="display:none;position:fixed;inset:0;z-index:300;pointer-events:none;align-items:center;justify-content:center;">
+  <div id="success-pop" style="display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;transform:scale(0.7);transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);">
+    <div id="success-icon" style="width:72px;height:72px;border-radius:50%;background:var(--green-mid);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(99,153,34,0.4);">
+      <i class="ti ti-check" style="font-size:36px;color:white;"></i>
+    </div>
+    <span id="success-msg" style="font-size:16px;font-weight:600;color:var(--text);background:var(--surface);padding:6px 18px;border-radius:99px;box-shadow:0 2px 12px rgba(0,0,0,0.15);"></span>
   </div>
 </div>
 
