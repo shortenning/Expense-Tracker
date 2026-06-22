@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v35</title>
+  <title>Expense Tracker v36</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -241,7 +241,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v35</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v36</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -1410,16 +1410,29 @@ function openEditModal(idx) {
     b.classList.toggle("selected", b.textContent.trim() === e.category);
   });
 
-  // Date/time
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  // Date/time — populate text inputs
   const dp = e.date.split("/");
   if (dp.length === 3) {
     const dd = dp[0], mm = dp[1], yyyy = dp[2].length===2?"20"+dp[2]:dp[2];
-    document.getElementById("edit-date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
+    document.getElementById("edit-date-text").value = dd+"/"+mm+"/"+yyyy;
     document.getElementById("edit-date-input").value = yyyy+"-"+mm+"-"+dd;
   }
-  document.getElementById("edit-time-display").textContent = e.time;
+  document.getElementById("edit-time-text").value = e.time;
   document.getElementById("edit-time-input").value = e.time;
+  document.getElementById("edit-date-wrap").classList.remove("modified");
+  document.getElementById("edit-time-wrap").classList.remove("modified");
+
+  // Reset split
+  splitActive = false;
+  splitPeople = [];
+  document.getElementById("split-toggle").textContent = "Off";
+  document.getElementById("split-toggle").style.background = "var(--surface2)";
+  document.getElementById("split-toggle").style.color = "var(--text2)";
+  document.getElementById("split-panel").style.display = "none";
+  ["caleb","tammy","common"].forEach(p => {
+    const b = document.getElementById("split-btn-"+p);
+    if (b) b.className = "modal-type-btn";
+  });
 
   document.getElementById("edit-modal").classList.add("show");
   document.body.style.overflow = "hidden";
@@ -1449,15 +1462,82 @@ function editSelectCat(name, btn) {
 function editOnDateChange(val) {
   if (!val) return;
   const [yyyy,mm,dd] = val.split("-");
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  document.getElementById("edit-date-display").textContent = parseInt(dd)+" "+months[parseInt(mm)-1]+" "+yyyy;
-  document.getElementById("edit-date-btn").classList.add("modified");
+  document.getElementById("edit-date-text").value = dd+"/"+mm+"/"+yyyy;
+  document.getElementById("edit-date-wrap").classList.add("modified");
 }
-
 function editOnTimeChange(val) {
   if (!val) return;
-  document.getElementById("edit-time-display").textContent = val;
-  document.getElementById("edit-time-btn").classList.add("modified");
+  document.getElementById("edit-time-text").value = val;
+  document.getElementById("edit-time-wrap").classList.add("modified");
+}
+function editDateTextInput(val) {
+  let v = val.replace(/\D/g,"");
+  if (v.length>2) v=v.slice(0,2)+"/"+v.slice(2);
+  if (v.length>5) v=v.slice(0,5)+"/"+v.slice(5);
+  document.getElementById("edit-date-text").value = v.slice(0,10);
+}
+function editDateTextBlur(val) {
+  const p = val.split("/"); if (p.length!==3||!p[2]) return;
+  const dd=p[0].padStart(2,"0"),mm=p[1].padStart(2,"0");
+  const yyyy=p[2].length===2?"20"+p[2]:p[2]; if(yyyy.length!==4) return;
+  const iso=yyyy+"-"+mm+"-"+dd;
+  if (isNaN(new Date(iso))) return;
+  document.getElementById("edit-date-input").value=iso;
+  document.getElementById("edit-date-text").value=dd+"/"+mm+"/"+yyyy;
+  document.getElementById("edit-date-wrap").classList.add("modified");
+}
+function editTimeTextInput(val) {
+  let v=val.replace(/\D/g,"");
+  if(v.length>2) v=v.slice(0,2)+":"+v.slice(2);
+  document.getElementById("edit-time-text").value=v.slice(0,5);
+}
+function editTimeTextBlur(val) {
+  const p=val.split(":"); if(p.length!==2) return;
+  const hh=p[0].padStart(2,"0"),min=p[1].padStart(2,"0");
+  if(parseInt(hh)>23||parseInt(min)>59) return;
+  const formatted=hh+":"+min;
+  document.getElementById("edit-time-input").value=formatted;
+  document.getElementById("edit-time-text").value=formatted;
+  document.getElementById("edit-time-wrap").classList.add("modified");
+}
+
+/* ── Split expense ─────────────────────────── */
+let splitActive = false;
+let splitPeople = [];
+
+function toggleSplit() {
+  splitActive = !splitActive;
+  const btn = document.getElementById("split-toggle");
+  const panel = document.getElementById("split-panel");
+  if (splitActive) {
+    btn.textContent = "On"; btn.style.background = "var(--green-light)"; btn.style.color = "var(--green)";
+    panel.style.display = "block";
+  } else {
+    btn.textContent = "Off"; btn.style.background = "var(--surface2)"; btn.style.color = "var(--text2)";
+    panel.style.display = "none";
+    splitPeople = [];
+    ["caleb","tammy","common"].forEach(p => { document.getElementById("split-btn-"+p).className = "modal-type-btn"; });
+  }
+}
+
+function toggleSplitPerson(name) {
+  const idx = splitPeople.indexOf(name);
+  if (idx > -1) {
+    splitPeople.splice(idx,1);
+    document.getElementById("split-btn-"+name.toLowerCase()).className = "modal-type-btn";
+  } else {
+    if (splitPeople.length >= 2) {
+      // Deselect first
+      const old = splitPeople.shift();
+      document.getElementById("split-btn-"+old.toLowerCase()).className = "modal-type-btn";
+    }
+    splitPeople.push(name);
+    document.getElementById("split-btn-"+name.toLowerCase()).className = "modal-type-btn sel-"+name.toLowerCase();
+  }
+  // Update preview
+  const amt = parseFloat(document.getElementById("edit-amount").value)||0;
+  const each = splitPeople.length===2 ? (amt/2).toFixed(2) : "—";
+  document.getElementById("split-each-preview").textContent = splitPeople.length===2 ? "$"+each : "select 2 people";
 }
 
 async function saveEdit() {
@@ -1467,8 +1547,10 @@ async function saveEdit() {
   if (!editType) { showToast("Please select a type.","danger"); return; }
   if (!editCat)  { showToast("Please select a category.","danger"); return; }
 
+  // Get date/time from text inputs
   const dateVal = document.getElementById("edit-date-input").value; // YYYY-MM-DD
   const timeVal = document.getElementById("edit-time-input").value; // HH:mm
+  if (!dateVal || !timeVal) { showToast("Please set a valid date and time.","danger"); return; }
   const [yyyy,mm,dd] = dateVal.split("-");
   const date = dd+"/"+mm+"/"+yyyy;
   const time = timeVal;
@@ -1481,33 +1563,54 @@ async function saveEdit() {
   const oldType   = oldEntry.type   || "";
   const oldAmount = oldEntry.amount || "";
 
+  const wh = localStorage.getItem("exp_webhook");
+
+  // Handle split
+  if (splitActive && splitPeople.length === 2) {
+    const half = (amount/2).toFixed(2);
+    // Remove original entry
+    entries.splice(editIdx,1);
+    // Add two split entries
+    const newEntries = splitPeople.map((person, i) => ({
+      date, time, type: person, category: editCat,
+      item: (item||"-")+" (split)",
+      amount: half,
+      ts: new Date(new Date(`${yyyy}-${mm}-${dd}T${timeVal}:00+08:00`).getTime() + i*1000).toISOString()
+    }));
+    entries.unshift(...newEntries);
+    localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
+    closeEditModal();
+    renderRecent();
+    showToast(`Split $${amount.toFixed(2)} → $${half} each ✓`,"success");
+
+    if (wh) {
+      try {
+        // Delete old
+        const p = new URLSearchParams({action:"deleteEntry",ts:oldTs,date:oldDate,time:oldTime,type:oldType,amount:oldAmount,_:Date.now()});
+        await fetch(wh+"?"+p.toString(),{mode:"no-cors"});
+        // Post two new entries
+        for (const ne of newEntries) {
+          await fetch(wh,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(ne),mode:"no-cors"});
+        }
+      } catch(e) {}
+    }
+    return;
+  }
+
+  // Normal (non-split) save
   const updated = { date, time, type: editType, category: editCat, item: item||"-", amount: amount.toFixed(2), ts };
   entries[editIdx] = updated;
   localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
-
   closeEditModal();
   renderRecent();
   showToast("Entry updated ✓","success");
 
-  // Sync to Sheets: delete old row then write updated entry
-  const wh = localStorage.getItem("exp_webhook");
   if (wh) {
     try {
-      // Delete old row — pass ts + fallback fields for rows without timestamp
-      const oldEntry = { ts: oldTs, date: oldDate, time: oldTime, type: oldType, amount: oldAmount };
-      const params = new URLSearchParams({
-        action: "deleteEntry",
-        ts:     oldEntry.ts    || "",
-        date:   oldEntry.date  || "",
-        time:   oldEntry.time  || "",
-        type:   oldEntry.type  || "",
-        amount: oldEntry.amount|| "",
-        _:      Date.now()
-      });
-      await fetch(wh+"?"+params.toString(), { mode:"no-cors" });
-      // Write updated entry as new row
-      await fetch(wh, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(updated), mode:"no-cors" });
-    } catch(e) { /* silent */ }
+      const params = new URLSearchParams({action:"deleteEntry",ts:oldTs,date:oldDate,time:oldTime,type:oldType,amount:oldAmount,_:Date.now()});
+      await fetch(wh+"?"+params.toString(),{mode:"no-cors"});
+      await fetch(wh,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(updated),mode:"no-cors"});
+    } catch(e) {}
   }
 }
 
@@ -1643,26 +1746,43 @@ init();
     <div class="modal-field">
       <label>Date &amp; Time</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="position:relative;">
-          <button class="datetime-btn" id="edit-date-btn">
-            <div class="datetime-icon-wrap"><i class="ti ti-calendar"></i></div>
-            <div class="datetime-text">
-              <span class="datetime-label">Date</span>
-              <span class="datetime-value" id="edit-date-display">—</span>
-            </div>
-          </button>
-          <input type="date" id="edit-date-input" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="editOnDateChange(this.value)" />
+        <div class="dt-input-wrap" id="edit-date-wrap">
+          <input type="text" class="dt-text-input" id="edit-date-text"
+            placeholder="dd/mm/yyyy" maxlength="10"
+            oninput="editDateTextInput(this.value)"
+            onblur="editDateTextBlur(this.value)" />
+          <div style="position:relative;flex-shrink:0;">
+            <button class="dt-icon-btn" aria-label="Pick date"><i class="ti ti-calendar"></i></button>
+            <input type="date" id="edit-date-input" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="editOnDateChange(this.value)" />
+          </div>
         </div>
-        <div style="position:relative;">
-          <button class="datetime-btn" id="edit-time-btn">
-            <div class="datetime-icon-wrap"><i class="ti ti-clock"></i></div>
-            <div class="datetime-text">
-              <span class="datetime-label">Time</span>
-              <span class="datetime-value" id="edit-time-display">—</span>
-            </div>
-          </button>
-          <input type="time" id="edit-time-input" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="editOnTimeChange(this.value)" />
+        <div class="dt-input-wrap" id="edit-time-wrap">
+          <input type="text" class="dt-text-input" id="edit-time-text"
+            placeholder="HH:MM" maxlength="5"
+            oninput="editTimeTextInput(this.value)"
+            onblur="editTimeTextBlur(this.value)" />
+          <div style="position:relative;flex-shrink:0;">
+            <button class="dt-icon-btn" aria-label="Pick time"><i class="ti ti-clock"></i></button>
+            <input type="time" id="edit-time-input" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="editOnTimeChange(this.value)" />
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Split expense -->
+    <div class="modal-field">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <label style="margin-bottom:0;">Split between two people</label>
+        <button id="split-toggle" onclick="toggleSplit()" style="background:var(--surface2);border:0.5px solid var(--border);border-radius:99px;padding:4px 12px;font-size:12px;font-family:var(--font);cursor:pointer;color:var(--text2);">Off</button>
+      </div>
+      <div id="split-panel" style="display:none;margin-top:10px;background:var(--surface2);border-radius:var(--radius-sm);padding:12px;border:0.5px solid var(--border);">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Split amount: <strong id="split-each-preview">—</strong> each</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button class="modal-type-btn" id="split-btn-caleb"  onclick="toggleSplitPerson('Caleb')">Caleb</button>
+          <button class="modal-type-btn" id="split-btn-tammy"  onclick="toggleSplitPerson('Tammy')">Tammy</button>
+          <button class="modal-type-btn" id="split-btn-common" onclick="toggleSplitPerson('Common')">Common</button>
+        </div>
+        <p style="font-size:11px;color:var(--text3);margin-top:8px;">Select two people to split between. Saves two separate entries.</p>
       </div>
     </div>
 
