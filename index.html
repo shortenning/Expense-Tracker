@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v36</title>
+  <title>Expense Tracker v37</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -44,50 +44,50 @@
     body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100%;padding-bottom:env(safe-area-inset-bottom,20px);}
     .app{max-width:480px;margin:0 auto;padding:0 16px 100px;}
     /* Header */
-    .header{display:flex;align-items:center;gap:12px;padding:20px 0 16px;border-bottom:0.5px solid var(--border);margin-bottom:20px;}
-    .header-icon{width:40px;height:40px;border-radius:var(--radius-sm);background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .header h1{font-size:18px;font-weight:600;line-height:1.2;}
-    .header p{font-size:13px;color:var(--text2);margin-top:1px;}
+    .header{display:flex;align-items:center;gap:12px;padding:14px 0 12px;border-bottom:0.5px solid var(--border);margin-bottom:14px;}
+    .header-icon{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .header h1{font-size:17px;font-weight:600;line-height:1.2;}
+    .header p{font-size:12px;color:var(--text2);margin-top:1px;}
     /* Tabs */
-    .tab-row{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px;}
+    .tab-row{display:flex;gap:5px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
     .tab-row::-webkit-scrollbar{display:none;}
-    .tab{padding:7px 15px;border:0.5px solid var(--border);border-radius:99px;font-size:14px;font-family:var(--font);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
+    .tab{padding:5px 13px;border:0.5px solid var(--border);border-radius:99px;font-size:13px;font-family:var(--font);background:transparent;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
     .tab.active{background:var(--surface);color:var(--text);font-weight:500;border-color:var(--border2);}
     /* Card */
-    .card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
+    .card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;}
     /* Amount */
-    .amount-row{display:flex;align-items:center;gap:6px;margin-bottom:14px;}
-    .currency{font-size:28px;font-weight:500;color:var(--text2);line-height:1;}
-    #amount{font-size:36px;font-weight:600;border:none;outline:none;background:transparent;color:var(--text);width:100%;font-family:var(--font);-moz-appearance:textfield;}
+    .amount-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+    .currency{font-size:22px;font-weight:500;color:var(--text2);line-height:1;}
+    #amount{font-size:30px;font-weight:600;border:none;outline:none;background:transparent;color:var(--text);width:100%;font-family:var(--font);-moz-appearance:textfield;}
     #amount::-webkit-outer-spin-button,#amount::-webkit-inner-spin-button{-webkit-appearance:none;}
     #amount::placeholder{color:var(--text3);}
-    .divider{height:0.5px;background:var(--border);margin:12px 0;}
+    .divider{height:0.5px;background:var(--border);margin:8px 0;}
     /* Field */
-    .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
     .field:last-child{margin-bottom:0;}
-    .field label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;}
-    .field input[type="text"]{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:var(--font);background:var(--surface2);color:var(--text);transition:border-color 0.15s;}
+    .field label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;}
+    .field input[type="text"]{width:100%;padding:8px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font);background:var(--surface2);color:var(--text);transition:border-color 0.15s;}
     .field input[type="text"]:focus{outline:none;border-color:var(--border2);}
     /* Type selector */
-    .type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-    .type-btn{padding:10px 8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:center;transition:all 0.15s;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;}
+    .type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+    .type-btn{padding:8px 6px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:center;transition:all 0.15s;font-weight:500;display:flex;align-items:center;justify-content:center;gap:5px;}
     .type-btn:active{transform:scale(0.97);}
     .type-btn.sel-caleb{background:var(--blue-light);border-color:var(--blue-border);color:var(--blue);}
     .type-btn.sel-tammy{background:var(--purple-light);border-color:var(--purple-border);color:var(--purple);}
     .type-btn.sel-common{background:var(--teal-light);border-color:var(--teal-border);color:var(--teal);}
     /* Category grid */
-    .cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
-    .cat-btn{padding:9px 10px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;}
-    .cat-btn i{font-size:15px;flex-shrink:0;}
+    .cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;}
+    .cat-btn{padding:7px 8px;border:0.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:var(--font);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;}
+    .cat-btn i{font-size:13px;flex-shrink:0;}
     .cat-btn span{overflow:hidden;text-overflow:ellipsis;}
     .cat-btn:active{transform:scale(0.97);}
     .cat-btn.selected{background:var(--green-light);border-color:var(--green-border);color:var(--green);font-weight:500;}
     /* Submit */
-    .submit-btn{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--green-mid);color:white;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s,transform 0.1s;margin-bottom:14px;}
+    .submit-btn{width:100%;padding:13px;border:none;border-radius:var(--radius);background:var(--green-mid);color:white;font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s,transform 0.1s;margin-bottom:10px;}
     .submit-btn:active{transform:scale(0.98);opacity:0.9;}
     .submit-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
     /* Toast */
-    .toast{display:none;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-sm);font-size:14px;margin-bottom:14px;border:0.5px solid;}
+    .toast{display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:10px;border:0.5px solid;}
     .toast.show{display:flex;}
     .toast.success{background:var(--green-light);border-color:var(--green-border);color:var(--green);}
     .toast.warning{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn-text);}
@@ -241,7 +241,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v36</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v37</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
@@ -268,18 +268,37 @@
     <div class="card">
       <div class="amount-row">
         <span class="currency">$</span>
-        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" inputmode="decimal" />
+        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" inputmode="decimal" oninput="updateLogSplitPreview()" />
       </div>
       <div class="divider"></div>
-      <div class="field" style="margin-bottom:14px;">
-        <label>Type</label>
-        <div class="type-row">
-          <button class="type-btn" id="btn-caleb"  onclick="selectType('Caleb')"><i class="ti ti-user"></i>Caleb</button>
-          <button class="type-btn" id="btn-tammy"  onclick="selectType('Tammy')"><i class="ti ti-user"></i>Tammy</button>
-          <button class="type-btn" id="btn-common" onclick="selectType('Common')"><i class="ti ti-users"></i>Common</button>
+      <div class="field" style="margin-bottom:10px;">
+        <!-- Type selector (hidden when split is on) -->
+        <div id="log-type-section">
+          <label>Type</label>
+          <div class="type-row">
+            <button class="type-btn" id="btn-caleb"  onclick="selectType('Caleb')"><i class="ti ti-user"></i>Caleb</button>
+            <button class="type-btn" id="btn-tammy"  onclick="selectType('Tammy')"><i class="ti ti-user"></i>Tammy</button>
+            <button class="type-btn" id="btn-common" onclick="selectType('Common')"><i class="ti ti-users"></i>Common</button>
+          </div>
+        </div>
+        <!-- Split section -->
+        <div id="log-split-section" style="display:none;">
+          <label>Split between</label>
+          <div class="type-row" style="margin-top:5px;">
+            <button class="type-btn" id="log-split-caleb"  onclick="logToggleSplitPerson('Caleb')"><i class="ti ti-user"></i>Caleb</button>
+            <button class="type-btn" id="log-split-tammy"  onclick="logToggleSplitPerson('Tammy')"><i class="ti ti-user"></i>Tammy</button>
+            <button class="type-btn" id="log-split-common" onclick="logToggleSplitPerson('Common')"><i class="ti ti-users"></i>Common</button>
+          </div>
+          <div id="log-split-preview" style="font-size:12px;color:var(--text2);margin-top:6px;text-align:center;"></div>
+        </div>
+        <!-- Split toggle -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+          <button id="log-split-toggle" onclick="logToggleSplit()" style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:0.5px solid var(--border);border-radius:99px;padding:5px 12px;font-size:12px;font-family:var(--font);cursor:pointer;color:var(--text2);transition:all 0.15s;">
+            <i class="ti ti-arrows-split-2" style="font-size:13px;"></i>Split expense
+          </button>
         </div>
       </div>
-      <div class="field" style="margin-bottom:16px;">
+      <div class="field" style="margin-bottom:10px;">
         <label>Category</label>
         <div class="cat-grid" id="cat-grid"></div>
       </div>
@@ -538,9 +557,7 @@ const CATEGORIES = [
   {name:"Dinner",icon:"ti-tools-kitchen-2"},{name:"Grocery",icon:"ti-shopping-cart"},
   {name:"Transport",icon:"ti-bus"},{name:"Coffee",icon:"ti-cup"},
   {name:"Entertainment",icon:"ti-device-tv"},{name:"Shopping",icon:"ti-shopping-bag"},
-  {name:"Household",icon:"ti-home"},{name:"Parking",icon:"ti-parking"},
-  {name:"Car Charging",icon:"ti-charging-pile"},{name:"Healthcare",icon:"ti-heart-rate-monitor"},
-  {name:"Bills",icon:"ti-receipt"},{name:"Other",icon:"ti-dots-circle-horizontal"}
+  {name:"Household",icon:"ti-home"},{name:"Other",icon:"ti-dots-circle-horizontal"}
 ];
 
 /* ══════════════════════════════════════════════
@@ -1130,6 +1147,91 @@ function showSuccessOverlay(category) {
 }
 
 /* ══════════════════════════════════════════════
+   LOG SPLIT
+═══════════════════════════════════════════════ */
+let logSplitActive  = false;
+let logSplitPeople  = [];
+
+function logToggleSplit() {
+  logSplitActive = !logSplitActive;
+  const btn     = document.getElementById("log-split-toggle");
+  const typeDiv = document.getElementById("log-type-section");
+  const splitDiv= document.getElementById("log-split-section");
+
+  if (logSplitActive) {
+    btn.style.background = "var(--green-light)";
+    btn.style.color      = "var(--green)";
+    btn.style.borderColor= "var(--green-border)";
+    typeDiv.style.display = "none";
+    splitDiv.style.display = "block";
+    selectedType = ""; // clear type when splitting
+    TYPES.forEach(t => { document.getElementById("btn-"+t.toLowerCase()).className="type-btn"; });
+  } else {
+    btn.style.background = "var(--surface2)";
+    btn.style.color      = "var(--text2)";
+    btn.style.borderColor= "var(--border)";
+    typeDiv.style.display = "block";
+    splitDiv.style.display = "none";
+    logSplitPeople = [];
+    TYPES.forEach(t => { document.getElementById("log-split-"+t.toLowerCase()).className="type-btn"; });
+    document.getElementById("log-split-preview").textContent = "";
+  }
+}
+
+function logToggleSplitPerson(name) {
+  const idx = logSplitPeople.indexOf(name);
+  if (idx > -1) {
+    logSplitPeople.splice(idx,1);
+    document.getElementById("log-split-"+name.toLowerCase()).className = "type-btn";
+  } else {
+    if (logSplitPeople.length >= 2) {
+      const old = logSplitPeople.shift();
+      document.getElementById("log-split-"+old.toLowerCase()).className = "type-btn";
+    }
+    logSplitPeople.push(name);
+    document.getElementById("log-split-"+name.toLowerCase()).className = "type-btn sel-"+name.toLowerCase();
+  }
+  const amt  = parseFloat(document.getElementById("amount").value)||0;
+  const prev = document.getElementById("log-split-preview");
+  if (logSplitPeople.length === 2 && amt > 0) {
+    prev.textContent = `$${(amt/2).toFixed(2)} each between ${logSplitPeople.join(" & ")}`;
+    prev.style.color = "var(--green)";
+  } else if (logSplitPeople.length === 2) {
+    prev.textContent = `Select two people — enter amount above to see split`;
+    prev.style.color = "var(--text3)";
+  } else {
+    prev.textContent = "Select 2 people to split between";
+    prev.style.color = "var(--text3)";
+  }
+}
+
+function updateLogSplitPreview() {
+  if (!logSplitActive || logSplitPeople.length !== 2) return;
+  const amt  = parseFloat(document.getElementById("amount").value)||0;
+  const prev = document.getElementById("log-split-preview");
+  if (amt > 0) {
+    prev.textContent = `$${(amt/2).toFixed(2)} each between ${logSplitPeople.join(" & ")}`;
+    prev.style.color = "var(--green)";
+  }
+}
+
+function resetLogSplit() {
+  logSplitActive = false;
+  logSplitPeople = [];
+  const btn = document.getElementById("log-split-toggle");
+  btn.style.background  = "var(--surface2)";
+  btn.style.color       = "var(--text2)";
+  btn.style.borderColor = "var(--border)";
+  document.getElementById("log-type-section").style.display  = "block";
+  document.getElementById("log-split-section").style.display = "none";
+  TYPES.forEach(t => {
+    const b = document.getElementById("log-split-"+t.toLowerCase());
+    if (b) b.className = "type-btn";
+  });
+  document.getElementById("log-split-preview").textContent = "";
+}
+
+/* ══════════════════════════════════════════════
    LOG EXPENSE
 ═══════════════════════════════════════════════ */
 function selectType(name) {
@@ -1154,43 +1256,78 @@ async function submitExpense() {
   const amount = parseFloat(document.getElementById("amount").value);
   const item   = document.getElementById("item").value.trim();
   if (!amount || amount<=0) { showToast("Please enter a valid amount.","danger"); return; }
-  if (!selectedType)        { showToast("Please select a type.","danger"); return; }
   if (!selectedCat)         { showToast("Please select a category.","danger"); return; }
 
-  const dt = getEntryDateTime();
-  const entry = {
-    date: dt.date, time: dt.time,
-    type: selectedType, category: selectedCat,
-    item: item||"-", amount: amount.toFixed(2), ts: dt.ts
-  };
+  // Split mode validation
+  if (logSplitActive) {
+    if (logSplitPeople.length !== 2) { showToast("Select exactly 2 people to split between.","danger"); return; }
+  } else {
+    if (!selectedType) { showToast("Please select a type.","danger"); return; }
+  }
 
-  entries.unshift(entry);
-  localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
-
-  const wh = localStorage.getItem("exp_webhook");
+  const dt  = getEntryDateTime();
+  const wh  = localStorage.getItem("exp_webhook");
   const btn = document.getElementById("submit-btn");
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader-2" style="font-size:18px;animation:spin 1s linear infinite;"></i> Saving…';
 
-  if (wh) {
-    const ok = await sendEntry(entry, wh);
-    if (ok) { showSuccessOverlay(); }
-    else {
-      pendingEntries.push(entry);
+  if (logSplitActive && logSplitPeople.length === 2) {
+    // Create two half-amount entries
+    const half = (amount/2).toFixed(2);
+    const splitEntries = logSplitPeople.map((person, i) => ({
+      date: dt.date, time: dt.time,
+      type: person, category: selectedCat,
+      item: (item||"-")+" (split)",
+      amount: half,
+      ts: new Date(new Date(dt.ts).getTime() + i*1000).toISOString()
+    }));
+    splitEntries.forEach(e => entries.unshift(e));
+    localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
+
+    if (wh) {
+      let allOk = true;
+      for (const e of splitEntries) {
+        const ok = await sendEntry(e, wh);
+        if (!ok) { pendingEntries.push(e); allOk = false; }
+      }
       localStorage.setItem("exp_pending", JSON.stringify(pendingEntries));
-      showToast("Saved locally — will sync when online.","warning");
-      updatePendingUI();
+      if (allOk) { showSuccessOverlay(); }
+      else { showToast("Saved locally — will sync when online.","warning"); updatePendingUI(); }
+    } else {
+      showToast("Saved locally. Add your Sheets URL in Setup to sync.","warning");
     }
   } else {
-    showToast("Saved locally. Add your Sheets URL in Setup to sync.","warning");
+    // Normal single entry
+    const entry = {
+      date: dt.date, time: dt.time,
+      type: selectedType, category: selectedCat,
+      item: item||"-", amount: amount.toFixed(2), ts: dt.ts
+    };
+    entries.unshift(entry);
+    localStorage.setItem("exp_entries", JSON.stringify(entries.slice(0,500)));
+
+    if (wh) {
+      const ok = await sendEntry(entry, wh);
+      if (ok) { showSuccessOverlay(); }
+      else {
+        pendingEntries.push(entry);
+        localStorage.setItem("exp_pending", JSON.stringify(pendingEntries));
+        showToast("Saved locally — will sync when online.","warning");
+        updatePendingUI();
+      }
+    } else {
+      showToast("Saved locally. Add your Sheets URL in Setup to sync.","warning");
+    }
   }
 
+  // Reset form
   document.getElementById("amount").value = "";
   document.getElementById("item").value   = "";
   selectedType = ""; selectedCat = "";
   document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("selected"));
   TYPES.forEach(t => { document.getElementById("btn-"+t.toLowerCase()).className="type-btn"; });
   resetDateTimePickers();
+  resetLogSplit();
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-plus" style="font-size:18px;"></i>Log expense';
 }
