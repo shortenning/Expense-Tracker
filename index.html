@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expense Tracker v37</title>
+  <title>Expense Tracker v38</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -28,16 +28,144 @@
     }
     @media(prefers-color-scheme:dark){
       :root{
-        --bg:#1A1A18;--surface:#242422;--surface2:#2E2E2C;
-        --text:#F0EFE8;--text2:#9A9A96;--text3:#6B6B67;
-        --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
-        --green-light:#1A2A0A;--green-border:#3B6D11;
-        --blue-light:#0A1A2A;--blue-border:#2F6FCC;
-        --purple-light:#1A0A2A;--purple-border:#5B2D91;
-        --teal-light:#0A2020;--teal-border:#1A8C8C;
-        --warn-bg:#2A1E08;--warn-border:#854F0B;--warn-text:#FAC775;
-        --danger-bg:#2A0A0A;--danger-border:#A32D2D;--danger-text:#F7C1C1;
+        /* Richer dark palette — warm dark with subtle depth */
+        --bg:#111110;
+        --surface:#1C1C1A;
+        --surface2:#252523;
+        --surface3:#2E2E2B;
+        --text:#F2F0E8;
+        --text2:#8A8A84;
+        --text3:#52524E;
+        --border:rgba(255,255,255,0.07);
+        --border2:rgba(255,255,255,0.14);
+        --green:#7EC247;
+        --green-mid:#5A9E1A;
+        --green-light:#1A280A;
+        --green-border:#3A6414;
+        --blue:#6BA8F0;
+        --blue-mid:#3A78D4;
+        --blue-light:#0D1E35;
+        --blue-border:#2A5090;
+        --purple:#B07EF0;
+        --purple-mid:#8040D8;
+        --purple-light:#1A0E30;
+        --purple-border:#4A2280;
+        --teal:#4EC8C8;
+        --teal-mid:#1A8080;
+        --teal-light:#091E1E;
+        --teal-border:#145858;
+        --warn-bg:#221A06;
+        --warn-border:#6B3E08;
+        --warn-text:#F0B060;
+        --danger-bg:#200808;
+        --danger-border:#7A2020;
+        --danger-text:#F08080;
       }
+
+      /* Dark mode body — very subtle warm texture */
+      body { background: #111110; }
+
+      /* Cards get a subtle top highlight to suggest depth */
+      .card, .person-card, .setup-card {
+        background: linear-gradient(160deg, #222220 0%, #1A1A18 100%);
+        border-color: rgba(255,255,255,0.08);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 2px 8px rgba(0,0,0,0.3);
+      }
+
+      /* Header gets a frosted dark feel */
+      .header { border-bottom-color: rgba(255,255,255,0.07); }
+      .header-icon { background: #1E2E12; box-shadow: 0 0 0 1px rgba(94,163,30,0.2); }
+
+      /* Active tab has a warm glow */
+      .tab.active {
+        background: #242422;
+        border-color: rgba(255,255,255,0.14);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset;
+      }
+
+      /* Amount input gets more presence */
+      .amount-row { background: transparent; }
+      #amount { color: #F2F0E8; }
+
+      /* Type/cat buttons: deeper background, subtle sheen on hover */
+      .type-btn, .cat-btn, .modal-type-btn, .modal-cat-btn {
+        background: #252523;
+        border-color: rgba(255,255,255,0.08);
+      }
+      .type-btn:hover, .cat-btn:hover { background: #2E2E2B; }
+
+      /* Selected states: richer accent colours in dark */
+      .type-btn.sel-caleb  { background:#0D1E35; border-color:#2A5090; color:#6BA8F0; }
+      .type-btn.sel-tammy  { background:#1A0E30; border-color:#4A2280; color:#B07EF0; }
+      .type-btn.sel-common { background:#091E1E; border-color:#145858; color:#4EC8C8; }
+      .cat-btn.selected    { background:#1A280A; border-color:#3A6414; color:#7EC247; }
+
+      /* Submit button: richer gradient */
+      .submit-btn {
+        background: linear-gradient(135deg, #5A9E1A 0%, #4A8214 100%);
+        box-shadow: 0 2px 12px rgba(90,158,26,0.35), 0 1px 0 rgba(255,255,255,0.08) inset;
+      }
+
+      /* Budget bar track */
+      .budget-bar-track { background: #252523; }
+
+      /* Dashboard cards */
+      .remaining-block.ok   { background: #1A280A; border: 0.5px solid #3A6414; }
+      .remaining-block.warn { background: #221A06; border: 0.5px solid #6B3E08; }
+      .remaining-block.over { background: #200808; border: 0.5px solid #7A2020; }
+      .remaining-block.none { background: #1C1C1A; border: 0.5px solid rgba(255,255,255,0.07); }
+
+      /* Date/time inputs */
+      .dt-input-wrap {
+        background: #252523;
+        border-color: rgba(255,255,255,0.08);
+      }
+      .dt-input-wrap:focus-within { border-color: rgba(255,255,255,0.18); }
+      .dt-input-wrap.modified { background:#1A280A; border-color:#3A6414; }
+
+      /* Month nav */
+      .month-nav { background: #1C1C1A; border-color: rgba(255,255,255,0.07); }
+
+      /* Stat boxes */
+      .stat-box { background: #252523; }
+
+      /* Modal */
+      .modal-sheet {
+        background: #1C1C1A;
+        box-shadow: 0 -4px 40px rgba(0,0,0,0.6);
+      }
+      .modal-field input[type="text"],.modal-field input[type="number"] {
+        background: #252523;
+        border-color: rgba(255,255,255,0.08);
+      }
+
+      /* Slider */
+      .budget-slider { background: #252523; }
+      .budget-pill { background: #252523; border-color: rgba(255,255,255,0.1); }
+      .budget-step-btn { background: #252523; border-color: rgba(255,255,255,0.1); }
+
+      /* Loading overlay */
+      .loading-overlay { background: #111110; }
+
+      /* Code block */
+      .code-block { background: #161614; border-color: rgba(255,255,255,0.07); }
+
+      /* Sync banner */
+      .sync-banner { background: #1A280A; border-color: #3A6414; color: #7EC247; }
+
+      /* Entry badges */
+      .badge-caleb  { background:#0D1E35; color:#6BA8F0; }
+      .badge-tammy  { background:#1A0E30; color:#B07EF0; }
+      .badge-common { background:#091E1E; color:#4EC8C8; }
+
+      /* Pie chart hole */
+      #pie-svg circle[r="0.45"] { fill: #1C1C1A; }
+
+      /* Success overlay pop */
+      #success-pop span { background: #1C1C1A; box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
+
+      /* Delete confirm */
+      .delete-btn.confirming { background: #200808; border-color: #7A2020; }
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html{height:100%;}
@@ -241,7 +369,7 @@
     <div style="flex:1;">
       <h1>Expense Tracker</h1>
       <p id="current-date">Loading…</p>
-      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v37</span>
+      <span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.05em;">v38</span>
     </div>
     <button id="refresh-btn" onclick="doRefresh()" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:6px;border-radius:var(--radius-sm);" title="Refresh">
       <i class="ti ti-refresh" style="font-size:20px;"></i>
